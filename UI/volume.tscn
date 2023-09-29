@@ -1,0 +1,23 @@
+[gd_scene load_steps=2 format=3 uid="uid://brswk8celtbm1"]
+
+[ext_resource type="Script" path="res://UI/VolumeSlider.gd" id="1_dxq8y"]
+
+[node name="Volume" type="HBoxContainer"]
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+text = "Volume"
+horizontal_alignment = 3
+vertical_alignment = 3
+
+[node name="VolumeSlider" type="HSlider" parent="."]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+size_flags_vertical = 1
+max_value = 1.0
+step = 0.01
+script = ExtResource("1_dxq8y")
+
+[connection signal="value_changed" from="VolumeSlider" to="VolumeSlider" method="_on_value_changed"]

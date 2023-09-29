@@ -1,0 +1,41 @@
+[gd_scene load_steps=6 format=3 uid="uid://bhdo4vuebjyu4"]
+
+[ext_resource type="PackedScene" uid="uid://brswk8celtbm1" path="res://UI/volume.tscn" id="1_5ch4i"]
+[ext_resource type="Texture2D" uid="uid://dsfn06f2a4qd3" path="res://block.png" id="2_i6lhf"]
+[ext_resource type="Script" path="res://TileMap.gd" id="3_k2dhn"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_bt023"]
+texture = ExtResource("2_i6lhf")
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_0my0h"]
+sources/1 = SubResource("TileSetAtlasSource_bt023")
+
+[node name="game" type="Node2D"]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -163.0
+offset_bottom = 40.0
+grow_horizontal = 0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Volume" parent="CanvasLayer/MarginContainer" instance=ExtResource("1_5ch4i")]
+layout_mode = 2
+
+[node name="TileMap" type="TileMap" parent="."]
+position = Vector2(-1, 1)
+tile_set = SubResource("TileSet_0my0h")
+format = 2
+layer_0/tile_data = PackedInt32Array(1245219, 1, 0, 1179682, 1, 0, 1245218, 1, 0, 1179683, 1, 0, 1114143, 65537, 0, 1179679, 65537, 0, 1245214, 65537, 0, 1310750, 65537, 0, 1310749, 65537, 0, 1376285, 65537, 0, 1441821, 65537, 0, 1507357, 65537, 0, 1572893, 65537, 0, 1572894, 65537, 0, 1638430, 65537, 0, 1638431, 65537, 0, 1638432, 65537, 0, 1638433, 65537, 0)
+script = ExtResource("3_k2dhn")
