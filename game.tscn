@@ -46,5 +46,6 @@ position = Vector2(136, 136)
 zoom = Vector2(2, 2)
 
 [node name="Debug" type="TileMap" parent="."]
+visible = false
 tile_set = ExtResource("3_ie55p")
 format = 2

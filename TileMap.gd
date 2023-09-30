@@ -15,7 +15,7 @@ var matching_cells = []
 var direction = Block.RIGHT
 
 var cooldown = COOLDOWN_VALUE
-var action_cooldown = 0.05
+var action_cooldown = Global.ACTION_TIME
 var interacted = false
 var push = []
 
@@ -426,13 +426,13 @@ func _physics_process(delta):
 
 
 
-	if Input.is_action_just_pressed("rotate") or (Input.is_action_pressed("rotate") and action_cooldown < 0):
+	if Input.is_action_just_pressed("rotate"):
 		rotate_piece()
 		interacted = true
 
 
 	if interacted:
-		action_cooldown = 0.1
+		action_cooldown = Global.ACTION_TIME
 
 	action_cooldown -= delta
 
