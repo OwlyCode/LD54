@@ -5,7 +5,7 @@ var sound : float = db_to_linear(AudioServer.get_bus_volume_db(_bus))
 
 var current_scene = null
 var loading = false
-var GRID_SIZE = 17
+var GRID_SIZE = 15
 var LOCK_TIME = 0.01
 var COMBO_TIME = 0.5
 var ACTION_TIME = 0.05

@@ -1,8 +1,10 @@
 combos
-    - Combo destroys one opposite line
-    - More combos -> more destroyed lines ?
+    - Bomb system
+
 speedup
 JUICE
+    - Bloom
+    - Better show what moves and why
     - Well done / Nice / AWESOME / GODLIKE / HYPERRRRR
     - Particles
     - Music
@@ -10,6 +12,5 @@ JUICE
     - Screen Shake (lock, combo)
 Score system
 
-
-
-Projected position
+Losing condition
+Flying placement

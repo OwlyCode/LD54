@@ -58,7 +58,7 @@ func _ready():
 
 func populate():
 	for i in range(0, Global.GRID_SIZE):
-		for j in range(0, 3):
+		for j in range(0, 2):
 			state[i][j] = Block.new_random()
 			state[j][i] = Block.new_random()
 			state[i][Global.GRID_SIZE - 1 - j] = Block.new_random()
@@ -287,6 +287,8 @@ var blink_timer = 0.0
 func draw(delta):
 	clear()
 
+	alert()
+
 	var active_grid = get_node("/root/game/ActiveGrid")
 
 	active_grid.clear()
@@ -405,11 +407,34 @@ func _physics_process(delta):
 		fill_cooldown -= delta
 
 		if fill_cooldown < 0:
-			fill()
+			add_pending()
 			fill_cooldown = Global.FILL_COOLDOWN
 
 		if Input.is_action_just_pressed("lock") and is_touching():
 			set_game_state(LOCKING)
+
+	for i in range(pending.size()):
+		var p = pending[i]
+
+		p[2] -= delta
+
+		if p[2] < 0:
+			if state[p[0]][p[1]] == null:
+				state[p[0]][p[1]] = Block.new_random()
+
+			pending.remove_at(i)
+		else:
+			if state[p[0]][p[1]] != null:
+				pending.remove_at(i)
+			else:
+				var attached = false
+
+				for n in get_neighbors(p):
+					if state[n[0]][n[1]] != null:
+						attached = true
+
+				if not attached:
+					pending.remove_at(i)
 
 
 func is_touching():
@@ -442,7 +467,7 @@ func is_line_full(x):
 	return true
 
 
-func fill():
+func add_pending():
 	var left = 0
 	var right = Global.GRID_SIZE - 1
 	var top = 0
@@ -460,22 +485,33 @@ func fill():
 	while is_line_full(bottom) and bottom > Global.GRID_SIZE/2:
 		bottom -= 1
 
+	var candidates = []
 
 	for i in range(0, Global.GRID_SIZE):
 		if state[left][i] == null:
-			state[left][i] = Block.new_random()
+			candidates.append([left, i])
 
 	for i in range(0, Global.GRID_SIZE):
 		if state[right][i] == null:
-			state[right][i] = Block.new_random()
+			candidates.append([right, i])
 
 
 	for i in range(0, Global.GRID_SIZE):
 		if state[i][bottom] == null:
-			state[i][bottom] = Block.new_random()
+			candidates.append([i, bottom])
 
 	for i in range(0, Global.GRID_SIZE):
 		if state[i][top] == null:
-			state[i][top] = Block.new_random()
+			candidates.append([i, top])
 
-	print([left, right, top, bottom])
+	var candidate = candidates[randi() % candidates.size()]
+	candidate.append(4.0)
+
+	pending.append(candidate)
+
+
+var pending = []
+
+func alert():
+	for p in pending:
+		set_cell(0, Vector2i(p[0], p[1]), 1, Vector2i(0, 2))
