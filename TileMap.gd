@@ -10,7 +10,6 @@ var next_pieces = [[Block.new_colored(Block.GREEN), Block.new_colored(Block.BLUE
 var fluid_cells = []
 var matching_cells = []
 
-var cooldown = Global.COOLDOWN_VALUE
 var action_cooldown = Global.ACTION_TIME
 var interacted = false
 var push = []
@@ -290,12 +289,6 @@ func draw(delta):
 
 	var active_grid = get_node("/root/game/ActiveGrid")
 
-	if blink_timer < 0.0:
-		blink_timer = lerpf(0.05, 0.5, cooldown / Global.COOLDOWN_VALUE)
-		active_grid.modulate.a = 0.8 if active_grid.modulate.a == 1.0 else 1.0
-
-	blink_timer -= delta
-
 	active_grid.clear()
 
 	for i in range(Global.GRID_SIZE):
@@ -307,38 +300,38 @@ func draw(delta):
 		set_cell(0, Vector2i(cell[0], cell[1]), 1, Vector2i(1, 1))
 		active_grid.set_cell(0, Vector2i(cell[0], cell[1]), 1, cell[2].get_color())
 
-		var projection = Vector2i(cell[0], cell[1])
-		var grav = gravity[cell[0]][cell[1]]
+		# var projection = Vector2i(cell[0], cell[1])
+		# var grav = gravity[cell[0]][cell[1]]
 
-		if grav == Block.DOWN:
-			var x = cell[1]
+		# if grav == Block.DOWN:
+		# 	var x = cell[1]
 
-			while x < Global.GRID_SIZE and state[cell[0]][x] == null:
-				projection = Vector2i(cell[0], x)
-				x += 1
+		# 	while x < Global.GRID_SIZE and state[cell[0]][x] == null:
+		# 		projection = Vector2i(cell[0], x)
+		# 		x += 1
 
-		if grav == Block.RIGHT:
-			var x = cell[0]
+		# if grav == Block.RIGHT:
+		# 	var x = cell[0]
 
-			while x < Global.GRID_SIZE and state[x][cell[1]] == null:
-				projection = Vector2i(x, cell[1])
-				x += 1
+		# 	while x < Global.GRID_SIZE and state[x][cell[1]] == null:
+		# 		projection = Vector2i(x, cell[1])
+		# 		x += 1
 
-		if grav == Block.LEFT:
-			var x = cell[1]
+		# if grav == Block.LEFT:
+		# 	var x = cell[1]
 
-			while x >= 0 and state[x][cell[1]] == null:
-				projection = Vector2i(x, cell[1])
-				x -= 1
+		# 	while x >= 0 and state[x][cell[1]] == null:
+		# 		projection = Vector2i(x, cell[1])
+		# 		x -= 1
 
-		if grav == Block.UP:
-			var x = cell[0]
+		# if grav == Block.UP:
+		# 	var x = cell[0]
 
-			while x >= 0 and state[cell[0]][x] == null:
-				projection = Vector2i(cell[0], x)
-				x -= 1
+		# 	while x >= 0 and state[cell[0]][x] == null:
+		# 		projection = Vector2i(cell[0], x)
+		# 		x -= 1
 
-		set_cell(0, projection, 1, cell[2].get_color() + Vector2i(0, 2))
+		# set_cell(0, projection, 1, cell[2].get_color() + Vector2i(0, 2))
 
 
 
@@ -378,8 +371,6 @@ func set_game_state(s):
 			lock_cooldown = Global.LOCK_TIME
 		if s == MATCHING:
 			lock_cooldown = Global.COMBO_TIME
-		if s == DROPPING:
-			cooldown = Global.COOLDOWN_VALUE
 
 	game_state = s
 
@@ -446,10 +437,15 @@ func _physics_process(delta):
 	interacted = false
 
 	if game_state == DROPPING:
-		cooldown -= delta
-
-		if cooldown < 0:
+		if Input.is_action_just_pressed("lock") and is_touching():
 			set_game_state(LOCKING)
+
+func is_touching():
+	for x in active_cells:
+		for n in get_neighbors(x):
+			if state[n[0]][n[1]] != null:
+				return true
+	return false
 
 func display_debug():
 	var debug_ts = get_node("/root/game/Debug")
