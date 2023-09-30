@@ -1,13 +1,16 @@
 extends TileMap
 
-var GRID_SIZE = 24
+var GRID_SIZE = 16
 var COOLDOWN_VALUE = 0.5
 
 var state = []
+var gravity = []
 
 var active_cells = []
 
-var direction = Block.UNDECIDED
+var fluid_cells = []
+
+var direction = Block.RIGHT
 
 var cooldown = COOLDOWN_VALUE
 var action_cooldown = 0.05
@@ -17,6 +20,32 @@ var push = []
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	state = blank_state()
+	gravity = blank_state()
+
+	for i in range(GRID_SIZE):
+		for j in range(GRID_SIZE):
+			var left_dist = i
+			var up_dist = j
+			var right_dist = GRID_SIZE-1-i
+			var down_dist = GRID_SIZE-1-j
+
+			var min_val = GRID_SIZE * 2
+
+			if left_dist < min_val:
+				min_val = left_dist
+				gravity[i][j] = Block.LEFT
+
+			if right_dist < min_val:
+				min_val = right_dist
+				gravity[i][j] = Block.RIGHT
+
+			if down_dist < min_val:
+				min_val = down_dist
+				gravity[i][j] = Block.DOWN
+
+			if up_dist < min_val:
+				min_val = up_dist
+				gravity[i][j] = Block.UP
 
 	spawn_piece()
 
@@ -129,21 +158,79 @@ func detect_match(cell):
 
 	return []
 
-
 func lock():
 	for cell in active_cells:
 		state[cell[0]][cell[1]] = cell[2]
 
+	var matched = []
+
 	for cell in active_cells:
 		for c in detect_match(cell):
-			state[c[0]][c[1]] = null
+			matched.append(c)
+			change_state(c[0], c[1], null)
+
+	if matched:
+		pass # TODO effect
 
 	spawn_piece()
 
 
+func change_state(x, y, block):
+	state[x][y] = block
+
+	for n in get_neighbors([x, y]):
+		if state[n[0]][n[1]] != null:
+			fluid_cells.append([n[0], n[1]])
+
+	print(fluid_cells)
+
+func pack():
+	var lookup = [] + fluid_cells
+
+	fluid_cells = []
+
+	for cell in lookup:
+		var i = cell[0]
+		var j = cell[1]
+
+		if state[i][j] != null:
+			var with_color = state[i][j]
+
+			for c in detect_match([i, j, with_color]):
+				change_state(c[0], c[1], null)
+
+			if gravity[i][j] == Block.DOWN:
+				if j < GRID_SIZE - 1 and  state[i][j+1] == null:
+					change_state(i, j+1, state[i][j])
+					change_state(i, j, null)
+
+			if gravity[i][j] == Block.UP:
+				if j > 0 and  state[i][j-1] == null:
+					change_state(i, j-1, state[i][j])
+					change_state(i, j, null)
+
+			if gravity[i][j] == Block.LEFT:
+				if i > 0 and  state[i-1][j] == null:
+					change_state(i-1, j, state[i][j])
+					change_state(i, j, null)
+
+			if gravity[i][j] == Block.RIGHT:
+				if i < GRID_SIZE - 1 and  state[i+1][j] == null:
+					change_state(i+1, j, state[i][j])
+					change_state(i, j, null)
+
+
 func spawn_piece():
-	active_cells = [[11, 11, Block.new_random()], [12, 11, Block.new_random()]]
-	direction = Block.UNDECIDED
+	active_cells = [[GRID_SIZE/2, GRID_SIZE/2, Block.new_random()], [GRID_SIZE/2-1, GRID_SIZE/2, Block.new_random()]]
+
+	if direction == Block.DOWN:
+		direction = Block.LEFT
+	elif direction == Block.UP:
+			direction = Block.RIGHT
+	elif direction == Block.RIGHT:
+			direction = Block.DOWN
+	elif direction == Block.LEFT:
+			direction = Block.UP
 
 func update_state():
 	if direction == Block.DOWN:
@@ -205,30 +292,18 @@ func _process(_delta):
 
 func _physics_process(delta):
 	if Input.is_action_just_pressed("down") or (Input.is_action_pressed("down") and action_cooldown < 0):
-		if direction == Block.UNDECIDED:
-			direction = Block.DOWN
-
 		push.append(Block.DOWN)
 		interacted = true
 
 	if Input.is_action_just_pressed("left") or (Input.is_action_pressed("left") and action_cooldown < 0):
-		if direction == Block.UNDECIDED:
-			direction = Block.LEFT
-
 		push.append(Block.LEFT)
 		interacted = true
 
 	if Input.is_action_just_pressed("right") or (Input.is_action_pressed("right") and action_cooldown < 0):
-		if direction == Block.UNDECIDED:
-			direction = Block.RIGHT
-
 		push.append(Block.RIGHT)
 		interacted = true
 
 	if Input.is_action_just_pressed("up") or (Input.is_action_pressed("up") and action_cooldown < 0):
-		if direction == Block.UNDECIDED:
-			direction = Block.UP
-
 		push.append(Block.UP)
 		interacted = true
 
@@ -245,3 +320,5 @@ func _physics_process(delta):
 	if cooldown < 0:
 		cooldown = COOLDOWN_VALUE
 		update_state()
+
+	pack()
