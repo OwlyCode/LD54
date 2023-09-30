@@ -7,6 +7,8 @@ var gravity = []
 
 var active_cells = []
 
+var next_pieces = [[Block.new_colored(Block.GREEN), Block.new_colored(Block.BLUE)]]
+
 var fluid_cells = []
 
 var direction = Block.RIGHT
@@ -18,7 +20,8 @@ var push = []
 
 
 var drop_cooldown = COOLDOWN_VALUE
-var lock_cooldown = COOLDOWN_VALUE
+var lock_cooldown = Global.LOCK_TIME
+var combo_cooldown = Global.COMBO_TIME
 
 enum { DROPPING, LOCKING, COMBOING }
 
@@ -54,6 +57,13 @@ func _ready():
 				gravity[i][j] = Block.UP
 
 	spawn_piece()
+	test_scenario()
+
+func test_scenario():
+	state[8][16] = Block.new_colored(Block.GREEN)
+	state[7][16] = Block.new_colored(Block.GREEN)
+	state[7][15] = Block.new_colored(Block.BLUE)
+	state[6][15] = Block.new_colored(Block.BLUE)
 
 func blank_state():
 	var new_state = []
@@ -175,8 +185,10 @@ func lock():
 			matched.append(c)
 			change_state(c[0], c[1], null)
 
-	if matched:
-		pass # TODO effect
+	if len(matched):
+		return true
+
+	return false
 
 func change_state(x, y, block):
 	state[x][y] = block
@@ -185,46 +197,62 @@ func change_state(x, y, block):
 		if state[n[0]][n[1]] != null:
 			fluid_cells.append([n[0], n[1]])
 
-	print(fluid_cells)
-
 func pack():
-	var lookup = [] + fluid_cells
+	while len(fluid_cells) > 0:
+		var lookup = [] + fluid_cells
 
-	fluid_cells = []
+		fluid_cells = []
 
-	for cell in lookup:
-		var i = cell[0]
-		var j = cell[1]
+		for cell in lookup:
+			var i = cell[0]
+			var j = cell[1]
 
-		if state[i][j] != null:
-			var with_color = state[i][j]
+			if state[i][j] != null:
+				var with_color = state[i][j]
+				var matches = detect_match([i, j, with_color])
 
-			for c in detect_match([i, j, with_color]):
-				change_state(c[0], c[1], null)
+				for c in matches:
+					change_state(c[0], c[1], null)
 
-			if gravity[i][j] == Block.DOWN:
-				if j < Global.GRID_SIZE - 1 and  state[i][j+1] == null:
-					change_state(i, j+1, state[i][j])
-					change_state(i, j, null)
+				if len(matches) > 0:
+					return true
 
-			if gravity[i][j] == Block.UP:
-				if j > 0 and  state[i][j-1] == null:
-					change_state(i, j-1, state[i][j])
-					change_state(i, j, null)
+				if gravity[i][j] == Block.DOWN:
+					if j < Global.GRID_SIZE - 1 and  state[i][j+1] == null:
+						change_state(i, j+1, state[i][j])
+						change_state(i, j, null)
 
-			if gravity[i][j] == Block.LEFT:
-				if i > 0 and  state[i-1][j] == null:
-					change_state(i-1, j, state[i][j])
-					change_state(i, j, null)
+				if gravity[i][j] == Block.UP:
+					if j > 0 and  state[i][j-1] == null:
+						change_state(i, j-1, state[i][j])
+						change_state(i, j, null)
 
-			if gravity[i][j] == Block.RIGHT:
-				if i < Global.GRID_SIZE - 1 and  state[i+1][j] == null:
-					change_state(i+1, j, state[i][j])
-					change_state(i, j, null)
+				if gravity[i][j] == Block.LEFT:
+					if i > 0 and  state[i-1][j] == null:
+						change_state(i-1, j, state[i][j])
+						change_state(i, j, null)
+
+				if gravity[i][j] == Block.RIGHT:
+					if i < Global.GRID_SIZE - 1 and  state[i+1][j] == null:
+						change_state(i+1, j, state[i][j])
+						change_state(i, j, null)
+
+	return false
 
 
 func spawn_piece():
-	active_cells = [[Global.GRID_SIZE/2, Global.GRID_SIZE/2, Block.new_random()], [Global.GRID_SIZE/2-1, Global.GRID_SIZE/2, Block.new_random()]]
+
+	var blocks = next_pieces.pop_front()
+
+	active_cells = [
+		[Global.GRID_SIZE/2, Global.GRID_SIZE/2, blocks[0]],
+		[Global.GRID_SIZE/2-1, Global.GRID_SIZE/2, blocks[1]]
+	]
+
+	next_pieces.append([
+		Block.new_random(),
+		Block.new_random()
+	])
 
 	if direction == Block.DOWN:
 		direction = Block.LEFT
@@ -325,7 +353,9 @@ func rotate_piece():
 func set_game_state(s):
 	if s != game_state:
 		if s == LOCKING:
-			lock_cooldown = COOLDOWN_VALUE
+			lock_cooldown = Global.LOCK_TIME
+		if s == COMBOING:
+			lock_cooldown = Global.COMBO_TIME
 
 	game_state = s
 
@@ -334,12 +364,30 @@ func _physics_process(delta):
 		lock_cooldown -= delta
 
 		if lock_cooldown < 0:
-			lock()
-			lock_cooldown = COOLDOWN_VALUE
-			set_game_state(DROPPING)
-			spawn_piece()
+			var has_match = lock()
+			pack()
+			lock_cooldown = Global.LOCK_TIME
 
-	pack()
+			if has_match:
+				set_game_state(COMBOING)
+			else:
+				set_game_state(DROPPING)
+				spawn_piece()
+
+
+	if game_state == COMBOING:
+		combo_cooldown -= delta
+
+		if combo_cooldown < 0:
+			var has_match = pack()
+
+			if has_match:
+				combo_cooldown = Global.COMBO_TIME
+			else:
+				set_game_state(DROPPING)
+				spawn_piece()
+
+
 
 	if Input.is_action_just_pressed("down") or (Input.is_action_pressed("down") and action_cooldown < 0):
 		if direction == Block.DOWN:

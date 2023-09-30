@@ -26,3 +26,11 @@ static func new_random() -> Block:
     b.color = colors[randi() % colors.size()]
 
     return b
+
+
+static func new_colored(color) -> Block:
+    var b = Block.new()
+
+    b.color = color
+
+    return b
