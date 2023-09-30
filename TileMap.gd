@@ -28,6 +28,12 @@ enum { DROPPING, LOCKING, MATCHING, LOST }
 
 var game_state = DROPPING
 
+var combo_multiplier = 1.0
+
+var combo_timeout = Global.COMBO_TIMEOUT
+
+var MovementFx = preload("res://movement_fx.tscn")
+
 func _ready():
 	state = blank_state()
 	gravity = blank_state()
@@ -190,8 +196,8 @@ func detect_match(cell):
 
 func lock():
 	for cell in active_cells:
-		state[cell[0]][cell[1]] = cell[2]
-		#fluid_cells.append([cell[0], cell[1]])
+		change_state(cell[0], cell[1], cell[2])
+		fluid_cells.append([cell[0], cell[1]])
 
 	var matched = []
 
@@ -200,6 +206,12 @@ func lock():
 			matched.append(c)
 
 	active_cells = []
+
+	if len(matched) == 0:
+		combo_multiplier = 1.0
+	else:
+		combo_timeout = Global.COMBO_TIMEOUT
+		combo_multiplier += 1.0
 
 	return matched
 
@@ -224,32 +236,75 @@ func pack():
 			var j = cell[1]
 
 			if state[i][j] != null:
-				# var closest = get_closest(i, j, state[i][j].color)
-
-				# print([i, j, closest])
-				# if closest[0] != i or closest[1] != j:
-				# 	print("SWAP")
-				# 	change_state(closest[0], closest[1], state[i][j])
-				# 	change_state(i, j, null)
-
 				if gravity[i][j] == Block.DOWN:
-					if j < Global.GRID_SIZE - 1 and  state[i][j+1] == null:
-						change_state(i, j+1, state[i][j])
+					var o = 1
+					var e = false
+					while j < Global.GRID_SIZE - o and state[i][j+o] == null:
+						e = true
+						o += 1
+
+					if e:
+						o -= 1
+						var movement = MovementFx.instantiate()
+						movement.source = map_to_local(Vector2i(i, j))
+						movement.target = map_to_local(Vector2i(i, j+o))
+						add_child(movement)
+
+						change_state(i, j+o, state[i][j])
 						change_state(i, j, null)
 
 				if gravity[i][j] == Block.UP:
-					if j > 0 and  state[i][j-1] == null:
-						change_state(i, j-1, state[i][j])
+					var o = 1
+					var e = false
+
+					while j-o >= 0 and  state[i][j-o] == null:
+						e = true
+						o += 1
+
+					if e:
+						o -= 1
+						var movement = MovementFx.instantiate()
+						movement.source = map_to_local(Vector2i(i, j))
+						movement.target = map_to_local(Vector2i(i, j-o))
+						add_child(movement)
+
+						change_state(i, j-o, state[i][j])
 						change_state(i, j, null)
 
 				if gravity[i][j] == Block.LEFT:
-					if i > 0 and  state[i-1][j] == null:
-						change_state(i-1, j, state[i][j])
+					var o = 1
+					var e = false
+
+					while i-o >= 0 and  state[i-o][j] == null:
+						e = true
+						o += 1
+
+					if e:
+						o -= 1
+						var movement = MovementFx.instantiate()
+						movement.source = map_to_local(Vector2i(i, j))
+						movement.target = map_to_local(Vector2i(i-o, j))
+						add_child(movement)
+
+						change_state(i-o, j, state[i][j])
 						change_state(i, j, null)
 
 				if gravity[i][j] == Block.RIGHT:
-					if i < Global.GRID_SIZE - 1 and  state[i+1][j] == null:
-						change_state(i+1, j, state[i][j])
+					var o = 1
+					var e = false
+
+					while i < Global.GRID_SIZE - o and  state[i+o][j] == null:
+						e = true
+						o += 1
+
+					if e:
+						o -= 1
+						var movement = MovementFx.instantiate()
+						movement.source = map_to_local(Vector2i(i, j))
+						movement.target = map_to_local(Vector2i(i+o, j))
+						add_child(movement)
+
+						change_state(i+o, j, state[i][j])
 						change_state(i, j, null)
 
 	var matches = []
@@ -261,6 +316,10 @@ func pack():
 		if state[i][j] != null:
 			var with_color = state[i][j]
 			matches += detect_match([i, j, with_color])
+
+	if len(matches) > 0:
+		combo_multiplier += 2
+		combo_timeout = Global.COMBO_TIMEOUT
 
 	return matches
 
@@ -402,7 +461,11 @@ func _physics_process(delta):
 			for c in matching_cells:
 				change_state(c[0], c[1], null)
 
-			score += len(matching_cells)
+				for n in get_neighbors(c):
+					if state[n[0]][n[1]] != null:
+						fluid_cells.append([n[0], n[1]])
+
+			score += len(matching_cells) * combo_multiplier
 
 			matching_cells = pack()
 			combo_cooldown = Global.COMBO_TIME
@@ -445,6 +508,13 @@ func _physics_process(delta):
 	interacted = false
 
 	if game_state == DROPPING:
+
+		combo_timeout -= delta
+
+		if combo_timeout < 0.0:
+			combo_multiplier = 1.0
+			combo_timeout = Global.COMBO_TIMEOUT
+
 		fill_cooldown -= delta
 
 		if fill_cooldown < 0:
@@ -493,8 +563,8 @@ func display_debug():
 	var debug_ts = get_node("/root/game/Debug")
 	debug_ts.clear()
 
-	for x in fluid_cells:
-		debug_ts.set_cell(0, Vector2i(x[0], x[1]), 1, Vector2i(3, 3))
+	# for x in fluid_cells:
+	# 	debug_ts.set_cell(0, Vector2i(x[0], x[1]), 1, Vector2i(3, 3))
 
 	for x in matching_cells:
 		debug_ts.set_cell(0, Vector2i(x[0], x[1]), 1, Vector2i(2, 3))

@@ -1,18 +1,12 @@
-combos
-    - Bomb system
-
 speedup
 JUICE
-    - Better show what moves and why
     - Well done / Nice / AWESOME / GODLIKE / HYPERRRRR
     - Particles
-    - Music
+        - Block destruction
     - Sound (lock, combo)
     - Screen Shake (lock, combo)
 Score system
     - defusing incoming blocks
-    - combos
-    - sequences of combos
 
 Bugs:
     can't place on border

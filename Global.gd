@@ -11,6 +11,7 @@ var COMBO_TIME = 0.5
 var ACTION_TIME = 0.1
 var FILL_COOLDOWN = 2.0
 var PENDING_TIME = 1.0
+var COMBO_TIMEOUT = 5.0
 
 func _ready():
 	var root = get_tree().get_root()

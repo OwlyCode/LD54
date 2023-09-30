@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3 uid="uid://hqasfe2l8g7e"]
+
+[ext_resource type="Script" path="res://Move.gd" id="1_h7x10"]
+[ext_resource type="Script" path="res://Trail.gd" id="2_xi5cg"]
+
+[sub_resource type="Gradient" id="Gradient_sj1lw"]
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1)
+
+[node name="Movement" type="Node2D"]
+show_behind_parent = true
+z_index = -50
+z_as_relative = false
+scale = Vector2(0.1, 0.1)
+script = ExtResource("1_h7x10")
+target = Vector2(100, 0)
+
+[node name="Line2D" type="Line2D" parent="."]
+show_behind_parent = true
+scale = Vector2(10, 10)
+width = 16.0
+gradient = SubResource("Gradient_sj1lw")
+script = ExtResource("2_xi5cg")
