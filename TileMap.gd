@@ -12,8 +12,6 @@ var next_pieces = [[Block.new_colored(Block.GREEN), Block.new_colored(Block.BLUE
 var fluid_cells = []
 var matching_cells = []
 
-var direction = Block.RIGHT
-
 var cooldown = COOLDOWN_VALUE
 var action_cooldown = Global.ACTION_TIME
 var interacted = false
@@ -272,56 +270,23 @@ func spawn_piece():
 		Block.new_random()
 	])
 
-	if direction == Block.DOWN:
-		direction = Block.LEFT
-	elif direction == Block.UP:
-			direction = Block.RIGHT
-	elif direction == Block.RIGHT:
-			direction = Block.DOWN
-	elif direction == Block.LEFT:
-			direction = Block.UP
 
 func update_state():
-	if direction == Block.DOWN:
-		if can_move_down():
-			move_down()
-			set_game_state(DROPPING)
-		else:
-			set_game_state(LOCKING)
-
-	if direction == Block.UP:
-		if can_move_up():
-			move_up()
-			set_game_state(DROPPING)
-		else:
-			set_game_state(LOCKING)
-
-	if direction == Block.LEFT:
-		if can_move_left():
-			move_left()
-			set_game_state(DROPPING)
-		else:
-			set_game_state(LOCKING)
-
-	if direction == Block.RIGHT:
-		if can_move_right():
-			move_right()
-			set_game_state(DROPPING)
-		else:
-			set_game_state(LOCKING)
+	# set_game_state(LOCKING)
+	pass
 
 func interact():
 	for p in push:
-		if p == Block.LEFT and can_move_left() and direction != Block.RIGHT:
+		if p == Block.LEFT and can_move_left():
 			move_left()
 
-		if p == Block.RIGHT and can_move_right() and direction != Block.LEFT:
+		if p == Block.RIGHT and can_move_right():
 			move_right()
 
-		if p == Block.DOWN and can_move_down() and direction != Block.UP:
+		if p == Block.DOWN and can_move_down():
 			move_down()
 
-		if p == Block.UP and can_move_up() and direction != Block.DOWN:
+		if p == Block.UP and can_move_up():
 			move_up()
 
 	push = []
@@ -407,34 +372,20 @@ func _physics_process(delta):
 				spawn_piece()
 
 	if Input.is_action_just_pressed("down") or (Input.is_action_pressed("down") and action_cooldown < 0):
-		if direction == Block.DOWN:
-			cooldown = COOLDOWN_VALUE
-
 		push.append(Block.DOWN)
 		interacted = true
 
 	if Input.is_action_just_pressed("left") or (Input.is_action_pressed("left") and action_cooldown < 0):
-		if direction == Block.LEFT:
-			cooldown = COOLDOWN_VALUE
-
 		push.append(Block.LEFT)
 		interacted = true
 
 	if Input.is_action_just_pressed("right") or (Input.is_action_pressed("right") and action_cooldown < 0):
-		if direction == Block.RIGHT:
-			cooldown = COOLDOWN_VALUE
-
 		push.append(Block.RIGHT)
 		interacted = true
 
 	if Input.is_action_just_pressed("up") or (Input.is_action_pressed("up") and action_cooldown < 0):
-		if direction == Block.UP:
-			cooldown = COOLDOWN_VALUE
-
 		push.append(Block.UP)
 		interacted = true
-
-
 
 	if Input.is_action_just_pressed("rotate"):
 		rotate_piece()
