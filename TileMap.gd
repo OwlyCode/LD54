@@ -19,7 +19,11 @@ var lock_cooldown = Global.LOCK_TIME
 var combo_cooldown = Global.COMBO_TIME
 var fill_cooldown = Global.FILL_COOLDOWN
 
-enum { DROPPING, LOCKING, MATCHING }
+
+var defusals = 0
+var score = 0
+
+enum { DROPPING, LOCKING, MATCHING, LOST }
 
 var game_state = DROPPING
 
@@ -193,7 +197,6 @@ func lock():
 	for cell in active_cells:
 		for c in detect_match(cell):
 			matched.append(c)
-			change_state(c[0], c[1], null)
 
 	active_cells = []
 
@@ -256,6 +259,12 @@ func pack():
 func spawn_piece():
 	var blocks = next_pieces.pop_front()
 
+	if state[Global.GRID_SIZE/2][Global.GRID_SIZE/2] != null:
+		set_game_state(LOST)
+
+	if state[Global.GRID_SIZE/2-1][Global.GRID_SIZE/2] != null:
+		set_game_state(LOST)
+
 	active_cells = [
 		[Global.GRID_SIZE/2, Global.GRID_SIZE/2, blocks[0]],
 		[Global.GRID_SIZE/2-1, Global.GRID_SIZE/2, blocks[1]]
@@ -285,13 +294,27 @@ func interact():
 var blink_timer = 0.0
 
 func draw(delta):
+
+	var ui = get_node("/root/game/UI")
+
+	var next = next_pieces[0]
+
+	ui.set_cell(0, Vector2i(-5, 5), 1, next[0].get_color())
+	ui.set_cell(0, Vector2i(-4, 5), 1, next[1].get_color())
+
 	clear()
 
 	alert()
 
 	var active_grid = get_node("/root/game/ActiveGrid")
 
+	var modul = lerpf(0.5, 1.0, (1 + sin(Engine.get_frames_drawn() / 5.0))/2.0)
+
+	active_grid.modulate.a = modul
+
 	active_grid.clear()
+
+	get_node("/root/game/Score").text = "%d" % score
 
 	for i in range(Global.GRID_SIZE):
 		for j in range(Global.GRID_SIZE):
@@ -299,7 +322,7 @@ func draw(delta):
 				set_cell(0, Vector2i(i, j), 1, state[i][j].get_color())
 
 	for cell in active_cells:
-		set_cell(0, Vector2i(cell[0], cell[1]), 1, Vector2i(1, 1))
+		#set_cell(0, Vector2i(cell[0], cell[1]), 1, Vector2i(1, 1))
 		active_grid.set_cell(0, Vector2i(cell[0], cell[1]), 1, cell[2].get_color())
 
 func _process(delta):
@@ -342,6 +365,9 @@ func set_game_state(s):
 	game_state = s
 
 func _physics_process(delta):
+	if game_state == LOST:
+		return
+
 	if game_state == LOCKING:
 		lock_cooldown -= delta
 
@@ -366,6 +392,8 @@ func _physics_process(delta):
 		if combo_cooldown < 0:
 			for c in matching_cells:
 				change_state(c[0], c[1], null)
+
+			score += len(matching_cells)
 
 			matching_cells = pack()
 			combo_cooldown = Global.COMBO_TIME
@@ -413,28 +441,31 @@ func _physics_process(delta):
 		if Input.is_action_just_pressed("lock") and is_touching():
 			set_game_state(LOCKING)
 
-	for i in range(pending.size()):
-		var p = pending[i]
+		for i in range(pending.size()):
+			if i >= pending.size():
+				break
 
-		p[2] -= delta
+			var p = pending[i]
 
-		if p[2] < 0:
-			if state[p[0]][p[1]] == null:
-				state[p[0]][p[1]] = Block.new_random()
+			p[2] -= delta
 
-			pending.remove_at(i)
-		else:
-			if state[p[0]][p[1]] != null:
+			if p[2] < 0:
+				if state[p[0]][p[1]] == null:
+					state[p[0]][p[1]] = Block.new_random()
+
 				pending.remove_at(i)
 			else:
-				var attached = false
-
-				for n in get_neighbors(p):
-					if state[n[0]][n[1]] != null:
-						attached = true
-
-				if not attached:
+				if state[p[0]][p[1]] != null:
 					pending.remove_at(i)
+				else:
+					var attached = false
+
+					for n in get_neighbors(p):
+						if state[n[0]][n[1]] != null:
+							attached = true
+
+					if not attached:
+						pending.remove_at(i)
 
 
 func is_touching():
@@ -442,13 +473,14 @@ func is_touching():
 		for n in get_neighbors(x):
 			if state[n[0]][n[1]] != null:
 				return true
+
 	return false
 
 func display_debug():
 	var debug_ts = get_node("/root/game/Debug")
 	debug_ts.clear()
 
-	for x in fluid_cells:
+	for x in matching_cells:
 		debug_ts.set_cell(0, Vector2i(x[0], x[1]), 1, Vector2i(2, 3))
 
 
@@ -504,8 +536,21 @@ func add_pending():
 		if state[i][top] == null:
 			candidates.append([i, top])
 
+	candidates = candidates.filter(func (c):
+		for p in pending:
+			if p[0] == c[0] and p[1] == c[1]:
+				return false
+
+		return true
+	)
+
+	print(len(candidates))
+
+	if len(candidates) == 0:
+		return
+
 	var candidate = candidates[randi() % candidates.size()]
-	candidate.append(4.0)
+	candidate.append(Global.PENDING_TIME)
 
 	pending.append(candidate)
 

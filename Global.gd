@@ -5,11 +5,12 @@ var sound : float = db_to_linear(AudioServer.get_bus_volume_db(_bus))
 
 var current_scene = null
 var loading = false
-var GRID_SIZE = 15
+var GRID_SIZE = 9
 var LOCK_TIME = 0.01
 var COMBO_TIME = 0.5
-var ACTION_TIME = 0.05
-var FILL_COOLDOWN = 5.0
+var ACTION_TIME = 0.1
+var FILL_COOLDOWN = 2.0
+var PENDING_TIME = 1.0
 
 func _ready():
 	var root = get_tree().get_root()
