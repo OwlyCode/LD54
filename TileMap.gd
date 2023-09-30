@@ -17,7 +17,14 @@ var action_cooldown = 0.05
 var interacted = false
 var push = []
 
-# Called when the node enters the scene tree for the first time.
+
+var drop_cooldown = COOLDOWN_VALUE
+var lock_cooldown = COOLDOWN_VALUE
+
+enum { DROPPING, LOCKING, COMBOING }
+
+var game_state = DROPPING
+
 func _ready():
 	state = blank_state()
 	gravity = blank_state()
@@ -172,9 +179,6 @@ func lock():
 	if matched:
 		pass # TODO effect
 
-	spawn_piece()
-
-
 func change_state(x, y, block):
 	state[x][y] = block
 
@@ -236,26 +240,30 @@ func update_state():
 	if direction == Block.DOWN:
 		if can_move_down():
 			move_down()
+			set_game_state(DROPPING)
 		else:
-			lock()
+			set_game_state(LOCKING)
 
 	if direction == Block.UP:
 		if can_move_up():
 			move_up()
+			set_game_state(DROPPING)
 		else:
-			lock()
+			set_game_state(LOCKING)
 
 	if direction == Block.LEFT:
 		if can_move_left():
 			move_left()
+			set_game_state(DROPPING)
 		else:
-			lock()
+			set_game_state(LOCKING)
 
 	if direction == Block.RIGHT:
 		if can_move_right():
 			move_right()
+			set_game_state(DROPPING)
 		else:
-			lock()
+			set_game_state(LOCKING)
 
 func interact():
 	for p in push:
@@ -290,35 +298,98 @@ func draw():
 func _process(_delta):
 	draw()
 
+
+func rotate_piece():
+	if len(active_cells) < 2:
+		return
+
+	var root_cell = active_cells[0]
+
+	if active_cells[1][0] == root_cell[0] - 1: # LEFT
+		if root_cell[1] > 0 and state[root_cell[0]][root_cell[1]-1] == null:
+			active_cells[1][0] = root_cell[0]
+			active_cells[1][1] = root_cell[1] - 1
+
+	elif active_cells[1][0] == root_cell[0] + 1: # RIGHT
+		if root_cell[1] < GRID_SIZE - 1 and state[root_cell[0]][root_cell[1]+1] == null:
+			active_cells[1][0] = root_cell[0]
+			active_cells[1][1] = root_cell[1] + 1
+
+	elif active_cells[1][1] == root_cell[1] - 1: # UP
+		if root_cell[0] < GRID_SIZE - 1 and state[root_cell[0]+1][root_cell[1]] == null:
+			active_cells[1][0] = root_cell[0] + 1
+			active_cells[1][1] = root_cell[1]
+
+	elif active_cells[1][1] == root_cell[1] + 1: # DOWN
+		if root_cell[0] > 0 and state[root_cell[0]-1][root_cell[1]] == null:
+			active_cells[1][0] = root_cell[0] - 1
+			active_cells[1][1] = root_cell[1]
+
+func set_game_state(s):
+	if s != game_state:
+		if s == LOCKING:
+			lock_cooldown = COOLDOWN_VALUE
+
+	game_state = s
+
 func _physics_process(delta):
+	if game_state == LOCKING:
+		lock_cooldown -= delta
+
+		if lock_cooldown < 0:
+			lock()
+			lock_cooldown = COOLDOWN_VALUE
+			set_game_state(DROPPING)
+			spawn_piece()
+
+	pack()
+
 	if Input.is_action_just_pressed("down") or (Input.is_action_pressed("down") and action_cooldown < 0):
+		if direction == Block.DOWN:
+			cooldown = COOLDOWN_VALUE
+
 		push.append(Block.DOWN)
 		interacted = true
 
 	if Input.is_action_just_pressed("left") or (Input.is_action_pressed("left") and action_cooldown < 0):
+		if direction == Block.LEFT:
+			cooldown = COOLDOWN_VALUE
+
 		push.append(Block.LEFT)
 		interacted = true
 
 	if Input.is_action_just_pressed("right") or (Input.is_action_pressed("right") and action_cooldown < 0):
+		if direction == Block.RIGHT:
+			cooldown = COOLDOWN_VALUE
+
 		push.append(Block.RIGHT)
 		interacted = true
 
 	if Input.is_action_just_pressed("up") or (Input.is_action_pressed("up") and action_cooldown < 0):
+		if direction == Block.UP:
+			cooldown = COOLDOWN_VALUE
+
 		push.append(Block.UP)
+		interacted = true
+
+
+
+	if Input.is_action_just_pressed("rotate") or (Input.is_action_pressed("rotate") and action_cooldown < 0):
+		rotate_piece()
 		interacted = true
 
 
 	if interacted:
 		action_cooldown = 0.1
 
-	cooldown -= delta
 	action_cooldown -= delta
 
 	interact()
 	interacted = false
 
-	if cooldown < 0:
-		cooldown = COOLDOWN_VALUE
-		update_state()
+	if game_state == DROPPING:
+		cooldown -= delta
 
-	pack()
+		if cooldown < 0:
+			cooldown = COOLDOWN_VALUE
+			update_state()
