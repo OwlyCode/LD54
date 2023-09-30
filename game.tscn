@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://UI.gd" id="5_4veao"]
 
 [node name="game" type="Node2D"]
+texture_filter = 1
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -43,3 +44,7 @@ script = ExtResource("5_4veao")
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(136, 136)
 zoom = Vector2(2, 2)
+
+[node name="Debug" type="TileMap" parent="."]
+tile_set = ExtResource("3_ie55p")
+format = 2

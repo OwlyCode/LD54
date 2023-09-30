@@ -7,7 +7,7 @@ var current_scene = null
 var loading = false
 var GRID_SIZE = 17
 var LOCK_TIME = 0.01
-var COMBO_TIME = 0.25
+var COMBO_TIME = 0.5
 
 func _ready():
 	var root = get_tree().get_root()

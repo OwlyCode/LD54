@@ -10,6 +10,7 @@ var active_cells = []
 var next_pieces = [[Block.new_colored(Block.GREEN), Block.new_colored(Block.BLUE)]]
 
 var fluid_cells = []
+var matching_cells = []
 
 var direction = Block.RIGHT
 
@@ -23,7 +24,7 @@ var drop_cooldown = COOLDOWN_VALUE
 var lock_cooldown = Global.LOCK_TIME
 var combo_cooldown = Global.COMBO_TIME
 
-enum { DROPPING, LOCKING, COMBOING }
+enum { DROPPING, LOCKING, MATCHING }
 
 var game_state = DROPPING
 
@@ -60,10 +61,14 @@ func _ready():
 	test_scenario()
 
 func test_scenario():
+	state[6][16] = Block.new_colored(Block.RED)
+
 	state[8][16] = Block.new_colored(Block.GREEN)
 	state[7][16] = Block.new_colored(Block.GREEN)
 	state[7][15] = Block.new_colored(Block.BLUE)
 	state[6][15] = Block.new_colored(Block.BLUE)
+	state[7][14] = Block.new_colored(Block.RED)
+	state[7][13] = Block.new_colored(Block.RED)
 
 func blank_state():
 	var new_state = []
@@ -188,10 +193,7 @@ func lock():
 
 	active_cells = []
 
-	if len(matched):
-		return true
-
-	return false
+	return matched
 
 func change_state(x, y, block):
 	state[x][y] = block
@@ -201,8 +203,11 @@ func change_state(x, y, block):
 			fluid_cells.append([n[0], n[1]])
 
 func pack():
+	var all_moved = []
+
 	while len(fluid_cells) > 0:
 		var lookup = [] + fluid_cells
+		all_moved += fluid_cells
 
 		fluid_cells = []
 
@@ -211,15 +216,6 @@ func pack():
 			var j = cell[1]
 
 			if state[i][j] != null:
-				var with_color = state[i][j]
-				var matches = detect_match([i, j, with_color])
-
-				for c in matches:
-					change_state(c[0], c[1], null)
-
-				if len(matches) > 0:
-					return true
-
 				if gravity[i][j] == Block.DOWN:
 					if j < Global.GRID_SIZE - 1 and  state[i][j+1] == null:
 						change_state(i, j+1, state[i][j])
@@ -240,7 +236,17 @@ func pack():
 						change_state(i+1, j, state[i][j])
 						change_state(i, j, null)
 
-	return false
+	var matches = []
+
+	for cell in all_moved:
+		var i = cell[0]
+		var j = cell[1]
+
+		if state[i][j] != null:
+			var with_color = state[i][j]
+			matches += detect_match([i, j, with_color])
+
+	return matches
 
 
 func spawn_piece():
@@ -324,7 +330,7 @@ func draw():
 
 func _process(_delta):
 	draw()
-
+	display_debug()
 
 func rotate_piece():
 	if len(active_cells) < 2:
@@ -356,7 +362,7 @@ func set_game_state(s):
 	if s != game_state:
 		if s == LOCKING:
 			lock_cooldown = Global.LOCK_TIME
-		if s == COMBOING:
+		if s == MATCHING:
 			lock_cooldown = Global.COMBO_TIME
 
 	game_state = s
@@ -366,35 +372,29 @@ func _physics_process(delta):
 		lock_cooldown -= delta
 
 		if lock_cooldown < 0:
-			var has_match = lock()
+			matching_cells = lock()
 			lock_cooldown = Global.LOCK_TIME
+			print(fluid_cells)
 
-			if has_match:
-				set_game_state(COMBOING)
-			else:
-				has_match = pack()
-
-				if has_match:
-					set_game_state(COMBOING)
-				else:
-					set_game_state(DROPPING)
-					spawn_piece()
-
-
-	if game_state == COMBOING:
-		combo_cooldown -= delta
-
-		if combo_cooldown < 0:
-			print("COMBO")
-			var has_match = pack()
-
-			if has_match:
-				combo_cooldown = Global.COMBO_TIME
+			if len(matching_cells) > 0:
+				set_game_state(MATCHING)
 			else:
 				set_game_state(DROPPING)
 				spawn_piece()
 
+	if game_state == MATCHING:
+		combo_cooldown -= delta
 
+		if combo_cooldown < 0:
+			for c in matching_cells:
+				change_state(c[0], c[1], null)
+
+			matching_cells = pack()
+			combo_cooldown = Global.COMBO_TIME
+
+			if not(matching_cells):
+				set_game_state(DROPPING)
+				spawn_piece()
 
 	if Input.is_action_just_pressed("down") or (Input.is_action_pressed("down") and action_cooldown < 0):
 		if direction == Block.DOWN:
@@ -445,3 +445,12 @@ func _physics_process(delta):
 		if cooldown < 0:
 			cooldown = COOLDOWN_VALUE
 			update_state()
+
+
+
+func display_debug():
+	var debug_ts = get_node("/root/game/Debug")
+	debug_ts.clear()
+
+	for x in fluid_cells:
+		debug_ts.set_cell(0, Vector2i(x[0], x[1]), 1, Vector2i(2, 3))
