@@ -338,7 +338,7 @@ func draw(delta):
 				projection = Vector2i(cell[0], x)
 				x -= 1
 
-		set_cell(0, projection, 1, cell.get_color() + Vector2i(0, 2))
+		set_cell(0, projection, 1, cell[2].get_color() + Vector2i(0, 2))
 
 
 
