@@ -62,7 +62,7 @@ func _ready():
 
 func populate():
 	for i in range(0, Global.GRID_SIZE):
-		for j in range(0, 2):
+		for j in range(0, 1):
 			state[i][j] = Block.new_random()
 			state[j][i] = Block.new_random()
 			state[i][Global.GRID_SIZE - 1 - j] = Block.new_random()
