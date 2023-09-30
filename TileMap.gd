@@ -57,8 +57,18 @@ func _ready():
 				min_val = up_dist
 				gravity[i][j] = Block.UP
 
+	populate()
+
 	spawn_piece()
 	test_scenario()
+
+func populate():
+	for i in range(0, Global.GRID_SIZE):
+		for j in range(0, 3):
+			state[i][j] = Block.new_random()
+			state[j][i] = Block.new_random()
+			state[i][Global.GRID_SIZE - 1 - j] = Block.new_random()
+			state[Global.GRID_SIZE - 1 - j][i] = Block.new_random()
 
 func test_scenario():
 	state[6][16] = Block.new_colored(Block.RED)
