@@ -17,6 +17,7 @@ var push = []
 
 var lock_cooldown = Global.LOCK_TIME
 var combo_cooldown = Global.COMBO_TIME
+var fill_cooldown = Global.FILL_COOLDOWN
 
 enum { DROPPING, LOCKING, MATCHING }
 
@@ -54,7 +55,6 @@ func _ready():
 	populate()
 
 	spawn_piece()
-	test_scenario()
 
 func populate():
 	for i in range(0, Global.GRID_SIZE):
@@ -300,41 +300,6 @@ func draw(delta):
 		set_cell(0, Vector2i(cell[0], cell[1]), 1, Vector2i(1, 1))
 		active_grid.set_cell(0, Vector2i(cell[0], cell[1]), 1, cell[2].get_color())
 
-		# var projection = Vector2i(cell[0], cell[1])
-		# var grav = gravity[cell[0]][cell[1]]
-
-		# if grav == Block.DOWN:
-		# 	var x = cell[1]
-
-		# 	while x < Global.GRID_SIZE and state[cell[0]][x] == null:
-		# 		projection = Vector2i(cell[0], x)
-		# 		x += 1
-
-		# if grav == Block.RIGHT:
-		# 	var x = cell[0]
-
-		# 	while x < Global.GRID_SIZE and state[x][cell[1]] == null:
-		# 		projection = Vector2i(x, cell[1])
-		# 		x += 1
-
-		# if grav == Block.LEFT:
-		# 	var x = cell[1]
-
-		# 	while x >= 0 and state[x][cell[1]] == null:
-		# 		projection = Vector2i(x, cell[1])
-		# 		x -= 1
-
-		# if grav == Block.UP:
-		# 	var x = cell[0]
-
-		# 	while x >= 0 and state[cell[0]][x] == null:
-		# 		projection = Vector2i(cell[0], x)
-		# 		x -= 1
-
-		# set_cell(0, projection, 1, cell[2].get_color() + Vector2i(0, 2))
-
-
-
 func _process(delta):
 	draw(delta)
 	display_debug()
@@ -437,8 +402,15 @@ func _physics_process(delta):
 	interacted = false
 
 	if game_state == DROPPING:
+		fill_cooldown -= delta
+
+		if fill_cooldown < 0:
+			fill()
+			fill_cooldown = Global.FILL_COOLDOWN
+
 		if Input.is_action_just_pressed("lock") and is_touching():
 			set_game_state(LOCKING)
+
 
 func is_touching():
 	for x in active_cells:
@@ -453,3 +425,57 @@ func display_debug():
 
 	for x in fluid_cells:
 		debug_ts.set_cell(0, Vector2i(x[0], x[1]), 1, Vector2i(2, 3))
+
+
+func is_column_full(x):
+	for i in range(0, Global.GRID_SIZE):
+		if state[x][i] == null:
+			return false
+
+	return true
+
+func is_line_full(x):
+	for i in range(0, Global.GRID_SIZE):
+		if state[i][x] == null:
+			return false
+
+	return true
+
+
+func fill():
+	var left = 0
+	var right = Global.GRID_SIZE - 1
+	var top = 0
+	var bottom = Global.GRID_SIZE - 1
+
+	while is_column_full(left) and left < Global.GRID_SIZE/2:
+		left += 1
+
+	while is_column_full(right) and right > Global.GRID_SIZE/2:
+		right -= 1
+
+	while is_line_full(top) and top < Global.GRID_SIZE/2:
+		top += 1
+
+	while is_line_full(bottom) and bottom > Global.GRID_SIZE/2:
+		bottom -= 1
+
+
+	for i in range(0, Global.GRID_SIZE):
+		if state[left][i] == null:
+			state[left][i] = Block.new_random()
+
+	for i in range(0, Global.GRID_SIZE):
+		if state[right][i] == null:
+			state[right][i] = Block.new_random()
+
+
+	for i in range(0, Global.GRID_SIZE):
+		if state[i][bottom] == null:
+			state[i][bottom] = Block.new_random()
+
+	for i in range(0, Global.GRID_SIZE):
+		if state[i][top] == null:
+			state[i][top] = Block.new_random()
+
+	print([left, right, top, bottom])
