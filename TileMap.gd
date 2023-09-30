@@ -21,6 +21,7 @@ var push = []
 var drop_cooldown = COOLDOWN_VALUE
 var lock_cooldown = Global.LOCK_TIME
 var combo_cooldown = Global.COMBO_TIME
+var idle_cooldown = Global.IDLE_TIME
 
 enum { DROPPING, LOCKING, MATCHING }
 
@@ -397,8 +398,16 @@ func _physics_process(delta):
 
 	action_cooldown -= delta
 
+	idle_cooldown -= delta
+
+	if interacted:
+		idle_cooldown = Global.IDLE_TIME
+
 	interact()
 	interacted = false
+
+	if idle_cooldown < 0:
+		lock()
 
 	if game_state == DROPPING:
 		cooldown -= delta
