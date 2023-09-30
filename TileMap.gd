@@ -1,6 +1,5 @@
 extends TileMap
 
-var GRID_SIZE = 16
 var COOLDOWN_VALUE = 0.5
 
 var state = []
@@ -29,14 +28,14 @@ func _ready():
 	state = blank_state()
 	gravity = blank_state()
 
-	for i in range(GRID_SIZE):
-		for j in range(GRID_SIZE):
+	for i in range(Global.GRID_SIZE):
+		for j in range(Global.GRID_SIZE):
 			var left_dist = i
 			var up_dist = j
-			var right_dist = GRID_SIZE-1-i
-			var down_dist = GRID_SIZE-1-j
+			var right_dist = Global.GRID_SIZE-1-i
+			var down_dist = Global.GRID_SIZE-1-j
 
-			var min_val = GRID_SIZE * 2
+			var min_val = Global.GRID_SIZE * 2
 
 			if left_dist < min_val:
 				min_val = left_dist
@@ -59,9 +58,9 @@ func _ready():
 func blank_state():
 	var new_state = []
 
-	for i in range(GRID_SIZE):
+	for i in range(Global.GRID_SIZE):
 		new_state.append([])
-		new_state[i].resize(GRID_SIZE)
+		new_state[i].resize(Global.GRID_SIZE)
 
 	return new_state
 
@@ -83,7 +82,7 @@ func move_up():
 
 func can_move_down():
 	for cell in active_cells:
-		if cell[1] >= GRID_SIZE-1:
+		if cell[1] >= Global.GRID_SIZE-1:
 			return false
 
 		if state[cell[0]][cell[1]+1] != null:
@@ -112,7 +111,7 @@ func move_left():
 
 func can_move_right():
 	for cell in active_cells:
-		if cell[0] >= GRID_SIZE-1:
+		if cell[0] >= Global.GRID_SIZE-1:
 			return false
 
 		if state[cell[0]+1][cell[1]] != null:
@@ -130,13 +129,13 @@ func get_neighbors(cell):
 	if cell[0] > 0:
 		n.append([cell[0]-1, cell[1]])
 
-	if cell[0] < GRID_SIZE - 1:
+	if cell[0] < Global.GRID_SIZE - 1:
 		n.append([cell[0]+1, cell[1]])
 
 	if cell[1] > 0:
 		n.append([cell[0], cell[1]-1])
 
-	if cell[1] < GRID_SIZE - 1:
+	if cell[1] < Global.GRID_SIZE - 1:
 		n.append([cell[0], cell[1]+1])
 
 	return n
@@ -204,7 +203,7 @@ func pack():
 				change_state(c[0], c[1], null)
 
 			if gravity[i][j] == Block.DOWN:
-				if j < GRID_SIZE - 1 and  state[i][j+1] == null:
+				if j < Global.GRID_SIZE - 1 and  state[i][j+1] == null:
 					change_state(i, j+1, state[i][j])
 					change_state(i, j, null)
 
@@ -219,13 +218,13 @@ func pack():
 					change_state(i, j, null)
 
 			if gravity[i][j] == Block.RIGHT:
-				if i < GRID_SIZE - 1 and  state[i+1][j] == null:
+				if i < Global.GRID_SIZE - 1 and  state[i+1][j] == null:
 					change_state(i+1, j, state[i][j])
 					change_state(i, j, null)
 
 
 func spawn_piece():
-	active_cells = [[GRID_SIZE/2, GRID_SIZE/2, Block.new_random()], [GRID_SIZE/2-1, GRID_SIZE/2, Block.new_random()]]
+	active_cells = [[Global.GRID_SIZE/2, Global.GRID_SIZE/2, Block.new_random()], [Global.GRID_SIZE/2-1, Global.GRID_SIZE/2, Block.new_random()]]
 
 	if direction == Block.DOWN:
 		direction = Block.LEFT
@@ -284,12 +283,10 @@ func interact():
 func draw():
 	clear()
 
-	for i in range(GRID_SIZE):
-		for j in range(GRID_SIZE):
+	for i in range(Global.GRID_SIZE):
+		for j in range(Global.GRID_SIZE):
 			if state[i][j] != null:
 				set_cell(0, Vector2i(i, j), 1, state[i][j].get_color())
-			else:
-				set_cell(0, Vector2i(i, j), 1, Vector2i(1, 1))
 
 	for cell in active_cells:
 		set_cell(0, Vector2i(cell[0], cell[1]), 1, cell[2].get_color())
@@ -311,12 +308,12 @@ func rotate_piece():
 			active_cells[1][1] = root_cell[1] - 1
 
 	elif active_cells[1][0] == root_cell[0] + 1: # RIGHT
-		if root_cell[1] < GRID_SIZE - 1 and state[root_cell[0]][root_cell[1]+1] == null:
+		if root_cell[1] < Global.GRID_SIZE - 1 and state[root_cell[0]][root_cell[1]+1] == null:
 			active_cells[1][0] = root_cell[0]
 			active_cells[1][1] = root_cell[1] + 1
 
 	elif active_cells[1][1] == root_cell[1] - 1: # UP
-		if root_cell[0] < GRID_SIZE - 1 and state[root_cell[0]+1][root_cell[1]] == null:
+		if root_cell[0] < Global.GRID_SIZE - 1 and state[root_cell[0]+1][root_cell[1]] == null:
 			active_cells[1][0] = root_cell[0] + 1
 			active_cells[1][1] = root_cell[1]
 
