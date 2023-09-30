@@ -1,6 +1,6 @@
 class_name Block
 
-enum {RED, BLUE}
+enum {RED, BLUE, GREEN, VIOLET}
 enum {UNDECIDED, UP, DOWN, RIGHT, LEFT}
 
 var color = RED
@@ -11,13 +11,18 @@ func get_color():
     match color:
         RED:
             return Vector2i(0,0)
-        _:
+        BLUE:
             return Vector2i(1,0)
+        GREEN:
+            return Vector2i(2,0)
+        VIOLET:
+            return Vector2i(3,0)
 
-
-
-static func new_blue() -> Block:
+static func new_random() -> Block:
     var b = Block.new()
-    b.color = BLUE
+
+    var colors = [RED, BLUE, GREEN, VIOLET]
+
+    b.color = colors[randi() % colors.size()]
 
     return b

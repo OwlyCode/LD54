@@ -10,6 +10,8 @@ texture = ExtResource("2_i6lhf")
 1:0/0 = 0
 2:0/0 = 0
 3:0/0 = 0
+0:1/0 = 0
+1:1/0 = 0
 
 [sub_resource type="TileSet" id="TileSet_0my0h"]
 sources/1 = SubResource("TileSetAtlasSource_bt023")
@@ -34,8 +36,10 @@ theme_override_constants/margin_bottom = 10
 layout_mode = 2
 
 [node name="TileMap" type="TileMap" parent="."]
-position = Vector2(-1, 1)
+position = Vector2(-193, -193)
 tile_set = SubResource("TileSet_0my0h")
 format = 2
 layer_0/tile_data = PackedInt32Array(1245219, 1, 0, 1179682, 1, 0, 1245218, 1, 0, 1179683, 1, 0, 1114143, 65537, 0, 1179679, 65537, 0, 1245214, 65537, 0, 1310750, 65537, 0, 1310749, 65537, 0, 1376285, 65537, 0, 1441821, 65537, 0, 1507357, 65537, 0, 1572893, 65537, 0, 1572894, 65537, 0, 1638430, 65537, 0, 1638431, 65537, 0, 1638432, 65537, 0, 1638433, 65537, 0)
 script = ExtResource("3_k2dhn")
+
+[node name="Camera2D" type="Camera2D" parent="."]
