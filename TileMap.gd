@@ -178,12 +178,15 @@ func lock():
 	for cell in active_cells:
 		state[cell[0]][cell[1]] = cell[2]
 
+
 	var matched = []
 
 	for cell in active_cells:
 		for c in detect_match(cell):
 			matched.append(c)
 			change_state(c[0], c[1], null)
+
+	active_cells = []
 
 	if len(matched):
 		return true
@@ -241,7 +244,6 @@ func pack():
 
 
 func spawn_piece():
-
 	var blocks = next_pieces.pop_front()
 
 	active_cells = [
@@ -365,20 +367,25 @@ func _physics_process(delta):
 
 		if lock_cooldown < 0:
 			var has_match = lock()
-			pack()
 			lock_cooldown = Global.LOCK_TIME
 
 			if has_match:
 				set_game_state(COMBOING)
 			else:
-				set_game_state(DROPPING)
-				spawn_piece()
+				has_match = pack()
+
+				if has_match:
+					set_game_state(COMBOING)
+				else:
+					set_game_state(DROPPING)
+					spawn_piece()
 
 
 	if game_state == COMBOING:
 		combo_cooldown -= delta
 
 		if combo_cooldown < 0:
+			print("COMBO")
 			var has_match = pack()
 
 			if has_match:
