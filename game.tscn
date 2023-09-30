@@ -35,6 +35,11 @@ tile_set = ExtResource("3_ie55p")
 format = 2
 script = ExtResource("3_k2dhn")
 
+[node name="ActiveGrid" type="TileMap" parent="."]
+position = Vector2(-2, -2)
+tile_set = ExtResource("3_ie55p")
+format = 2
+
 [node name="UI" type="TileMap" parent="."]
 tile_set = ExtResource("3_ie55p")
 format = 2

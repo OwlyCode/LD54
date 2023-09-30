@@ -8,8 +8,9 @@ var loading = false
 var GRID_SIZE = 17
 var LOCK_TIME = 0.01
 var COMBO_TIME = 0.5
-var ACTION_TIME = 0.025
-var IDLE_TIME = 0.25
+var ACTION_TIME = 0.05
+var IDLE_TIME = 1.0
+var COOLDOWN_VALUE = 3.0
 
 func _ready():
 	var root = get_tree().get_root()

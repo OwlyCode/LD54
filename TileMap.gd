@@ -1,7 +1,5 @@
 extends TileMap
 
-var COOLDOWN_VALUE = 0.5
-
 var state = []
 var gravity = []
 
@@ -12,16 +10,14 @@ var next_pieces = [[Block.new_colored(Block.GREEN), Block.new_colored(Block.BLUE
 var fluid_cells = []
 var matching_cells = []
 
-var cooldown = COOLDOWN_VALUE
+var cooldown = Global.COOLDOWN_VALUE
 var action_cooldown = Global.ACTION_TIME
 var interacted = false
 var push = []
 
 
-var drop_cooldown = COOLDOWN_VALUE
 var lock_cooldown = Global.LOCK_TIME
 var combo_cooldown = Global.COMBO_TIME
-var idle_cooldown = Global.IDLE_TIME
 
 enum { DROPPING, LOCKING, MATCHING }
 
@@ -191,7 +187,7 @@ func detect_match(cell):
 func lock():
 	for cell in active_cells:
 		state[cell[0]][cell[1]] = cell[2]
-
+		fluid_cells.append([cell[0], cell[1]])
 
 	var matched = []
 
@@ -271,11 +267,6 @@ func spawn_piece():
 		Block.new_random()
 	])
 
-
-func update_state():
-	# set_game_state(LOCKING)
-	pass
-
 func interact():
 	for p in push:
 		if p == Block.LEFT and can_move_left():
@@ -292,8 +283,20 @@ func interact():
 
 	push = []
 
-func draw():
+var blink_timer = 0.0
+
+func draw(delta):
 	clear()
+
+	var active_grid = get_node("/root/game/ActiveGrid")
+
+	if blink_timer < 0.0:
+		blink_timer = lerpf(0.05, 0.5, cooldown / Global.COOLDOWN_VALUE)
+		active_grid.modulate.a = 0.8 if active_grid.modulate.a == 1.0 else 1.0
+
+	blink_timer -= delta
+
+	active_grid.clear()
 
 	for i in range(Global.GRID_SIZE):
 		for j in range(Global.GRID_SIZE):
@@ -301,11 +304,46 @@ func draw():
 				set_cell(0, Vector2i(i, j), 1, state[i][j].get_color())
 
 	for cell in active_cells:
-		set_cell(0, Vector2i(cell[0], cell[1]), 1, cell[2].get_color())
+		set_cell(0, Vector2i(cell[0], cell[1]), 1, Vector2i(1, 1))
+		active_grid.set_cell(0, Vector2i(cell[0], cell[1]), 1, cell[2].get_color())
+
+		var projection = Vector2i(cell[0], cell[1])
+		var grav = gravity[cell[0]][cell[1]]
+
+		if grav == Block.DOWN:
+			var x = cell[1]
+
+			while x < Global.GRID_SIZE and state[cell[0]][x] == null:
+				projection = Vector2i(cell[0], x)
+				x += 1
+
+		if grav == Block.RIGHT:
+			var x = cell[0]
+
+			while x < Global.GRID_SIZE and state[x][cell[1]] == null:
+				projection = Vector2i(x, cell[1])
+				x += 1
+
+		if grav == Block.LEFT:
+			var x = cell[1]
+
+			while x >= 0 and state[x][cell[1]] == null:
+				projection = Vector2i(x, cell[1])
+				x -= 1
+
+		if grav == Block.UP:
+			var x = cell[0]
+
+			while x >= 0 and state[cell[0]][x] == null:
+				projection = Vector2i(cell[0], x)
+				x -= 1
+
+		set_cell(0, projection, 1, cell.get_color() + Vector2i(0, 2))
 
 
-func _process(_delta):
-	draw()
+
+func _process(delta):
+	draw(delta)
 	display_debug()
 
 func rotate_piece():
@@ -340,6 +378,8 @@ func set_game_state(s):
 			lock_cooldown = Global.LOCK_TIME
 		if s == MATCHING:
 			lock_cooldown = Global.COMBO_TIME
+		if s == DROPPING:
+			cooldown = Global.COOLDOWN_VALUE
 
 	game_state = s
 
@@ -350,13 +390,17 @@ func _physics_process(delta):
 		if lock_cooldown < 0:
 			matching_cells = lock()
 			lock_cooldown = Global.LOCK_TIME
-			print(fluid_cells)
 
 			if len(matching_cells) > 0:
 				set_game_state(MATCHING)
 			else:
-				set_game_state(DROPPING)
-				spawn_piece()
+				matching_cells = pack()
+
+				if len(matching_cells) > 0:
+					set_game_state(MATCHING)
+				else:
+					set_game_state(DROPPING)
+					spawn_piece()
 
 	if game_state == MATCHING:
 		combo_cooldown -= delta
@@ -398,25 +442,14 @@ func _physics_process(delta):
 
 	action_cooldown -= delta
 
-	idle_cooldown -= delta
-
-	if interacted:
-		idle_cooldown = Global.IDLE_TIME
-
 	interact()
 	interacted = false
-
-	if idle_cooldown < 0:
-		lock()
 
 	if game_state == DROPPING:
 		cooldown -= delta
 
 		if cooldown < 0:
-			cooldown = COOLDOWN_VALUE
-			update_state()
-
-
+			set_game_state(LOCKING)
 
 func display_debug():
 	var debug_ts = get_node("/root/game/Debug")
