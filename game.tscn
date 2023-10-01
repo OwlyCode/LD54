@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://bhdo4vuebjyu4"]
+[gd_scene load_steps=21 format=3 uid="uid://bhdo4vuebjyu4"]
 
 [ext_resource type="PackedScene" uid="uid://brswk8celtbm1" path="res://UI/volume.tscn" id="1_5ch4i"]
 [ext_resource type="AudioStream" uid="uid://hktgtd85nt12" path="res://Audio/placed1.wav" id="3_58vlb"]
@@ -19,6 +19,7 @@
 [ext_resource type="AudioStream" uid="uid://cccq4jkp6pfav" path="res://Audio/denied.wav" id="11_4yabd"]
 [ext_resource type="FontFile" uid="uid://bit7jqyq4jv4o" path="res://PixelOperator.ttf" id="15_xjiew"]
 [ext_resource type="FontFile" uid="uid://daeh0btch7i26" path="res://PixelOperator-Bold.ttf" id="17_paoa7"]
+[ext_resource type="Script" path="res://Tutorial.gd" id="20_e2df4"]
 
 [node name="game" type="Node2D"]
 texture_filter = 1
@@ -182,5 +183,15 @@ offset_bottom = 127.0
 theme_override_fonts/font = ExtResource("15_xjiew")
 text = "RESTART (SPACE)"
 script = ExtResource("8_shpyx")
+
+[node name="Tutorial" type="RichTextLabel" parent="."]
+offset_left = -25.0
+offset_top = 195.0
+offset_right = 200.0
+offset_bottom = 241.0
+theme_override_fonts/normal_font = ExtResource("15_xjiew")
+bbcode_enabled = true
+text = "[center]Arrow or WASD: move the blocks[/center]"
+script = ExtResource("20_e2df4")
 
 [connection signal="pressed" from="GameOverContainer/Restart" to="GameOverContainer/Restart" method="_on_pressed"]

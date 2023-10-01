@@ -1,16 +1,12 @@
 JUICE
     - Block spawning (fade white)
+    - Volume bar theming
 
 - connect matching colors
 
-- Custom font
-
-- Game name
-
 - TUTO
     - Restart (customize text on controller or keyboard)
-    - Show movement
-    - Show rotate
-    - Show place block
+    - Customize controller text
 
+- Game name
 - Main Menu

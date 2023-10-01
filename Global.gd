@@ -12,7 +12,9 @@ var ACTION_TIME = 0.1
 var PENDING_TIME = 1.0
 var COMBO_TIMEOUT = 5.0
 var score = 0
+var first_match = false
 
+var keyboard_mode = true
 
 func get_fill_cooldown():
 	return 2.0
@@ -58,3 +60,10 @@ func camera_shake(intensity = 1, duration = 1):
 		camera.position.x -= intensity
 		camera.position.y -= intensity
 		await get_tree().create_timer(0.1).timeout
+
+
+func _unhandled_input(event):
+	if (event is InputEventJoypadButton) or (event is InputEventJoypadMotion):
+		keyboard_mode = false
+	else:
+		keyboard_mode = true

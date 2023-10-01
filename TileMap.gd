@@ -61,6 +61,7 @@ func _ready():
 	gravity = blank_state()
 
 	Global.score = 0
+	Global.first_match = false
 
 	for i in range(Global.GRID_SIZE):
 		for j in range(Global.GRID_SIZE):
@@ -237,6 +238,7 @@ func lock():
 	if len(matched) == 0:
 		combo_multiplier = 0.0
 	else:
+		Global.first_match = true
 		combo_timeout = Global.COMBO_TIMEOUT
 		combo_multiplier += 1.0
 
