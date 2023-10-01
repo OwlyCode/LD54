@@ -3,9 +3,14 @@ JUICE
 
 - connect matching colors
 
+- Custom font
+
+- Game name
+
 - TUTO
+    - Restart (customize text on controller or keyboard)
+    - Show movement
+    - Show rotate
+    - Show place block
 
-- Gamepad
-
-Bugs:
-    can't spawn blocks on the border
+- Main Menu
