@@ -632,6 +632,9 @@ func _physics_process(delta):
 				else:
 					var attached = false
 
+					if p[0] == 0 or p[1] == 0 or p[0] == Global.GRID_SIZE - 1 or p[1] == Global.GRID_SIZE - 1:
+						attached = true
+
 					for n in get_neighbors(p):
 						if state[n[0]][n[1]] != null:
 							attached = true

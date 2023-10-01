@@ -1,5 +1,5 @@
 JUICE
-    - Block spawning
+    - Block spawning (fade white)
 
 - connect matching colors
 
@@ -8,5 +8,4 @@ JUICE
 - Gamepad
 
 Bugs:
-    can't place on border
     can't spawn blocks on the border
