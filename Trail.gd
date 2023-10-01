@@ -1,6 +1,6 @@
 extends Line2D
 
-var length = 10
+var length = 16
 var point = Vector2()
 
 # Called when the node enters the scene tree for the first time.
