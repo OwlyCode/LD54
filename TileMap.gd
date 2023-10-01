@@ -46,10 +46,10 @@ var placed_sound_offset = 0
 var match_sequence = 0
 
 @onready var match_sound = [
-	get_node("/root/game/Audio/Matched1"),
-	get_node("/root/game/Audio/Matched2"),
-	get_node("/root/game/Audio/Matched3"),
-	get_node("/root/game/Audio/Matched4")
+	get_node("/root/game/Audio/Match1"),
+	get_node("/root/game/Audio/Match2"),
+	get_node("/root/game/Audio/Match3"),
+	get_node("/root/game/Audio/Match4")
 ]
 
 @onready var rotate_sound = get_node("/root/game/Audio/Rotate")
@@ -494,11 +494,15 @@ func _physics_process(delta):
 			lock_cooldown = Global.LOCK_TIME
 
 			if len(matching_cells) > 0:
+				match_sound[match_sequence].play()
+				match_sequence = min(match_sequence + 1, 3)
 				set_game_state(MATCHING)
 			else:
 				matching_cells = pack()
 
 				if len(matching_cells) > 0:
+					match_sound[match_sequence].play()
+					match_sequence = min(match_sequence + 1, 3)
 					set_game_state(MATCHING)
 				else:
 					set_game_state(DROPPING)
@@ -535,6 +539,10 @@ func _physics_process(delta):
 			if not(matching_cells):
 				set_game_state(DROPPING)
 				spawn_piece()
+				match_sequence = 0
+			else:
+				match_sound[match_sequence].play()
+				match_sequence = min(match_sequence + 1, 3)
 
 	if Input.is_action_just_pressed("down") or (Input.is_action_pressed("down") and action_cooldown < 0):
 		push.append(Block.DOWN)
