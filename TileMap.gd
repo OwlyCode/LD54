@@ -58,7 +58,10 @@ var match_sequence = 0
 
 @onready var denied_sound = get_node("/root/game/Audio/Denied")
 
-
+@onready var preview_binds = [
+	get_node("/root/game/PreviewBind1"),
+	get_node("/root/game/PreviewBind2")
+]
 
 func _ready():
 	state = blank_state()
@@ -411,7 +414,6 @@ func interact():
 var blink_timer = 0.0
 
 func draw(delta):
-
 	var ui = get_node("/root/game/UI")
 
 	if len(next_pieces) > 0:
@@ -437,9 +439,22 @@ func draw(delta):
 			if state[i][j] != null:
 				set_cell(0, Vector2i(i, j), 1, state[i][j].get_color())
 
+	var i = 0
 	for cell in active_cells:
-		#set_cell(0, Vector2i(cell[0], cell[1]), 1, Vector2i(1, 1))
 		active_grid.set_cell(0, Vector2i(cell[0], cell[1]), 1, cell[2].get_color())
+
+
+		preview_binds[i].global_position = Vector2.ZERO
+		preview_binds[i].points = [
+			map_to_local(Vector2(cell[0], cell[1])),
+			map_to_local(get_closest(
+				cell[0],
+				cell[1],
+				gravity[cell[0]][cell[1]]
+			))
+		]
+
+		i += 1
 
 func _process(delta):
 	draw(delta)
@@ -598,7 +613,13 @@ func _physics_process(delta):
 	interact()
 	interacted = false
 
+	if game_state != DROPPING:
+		preview_binds[0].visible = false
+		preview_binds[1].visible = false
+
 	if game_state == DROPPING:
+		preview_binds[0].visible = true
+		preview_binds[1].visible = true
 
 		combo_timeout -= delta
 
@@ -614,10 +635,10 @@ func _physics_process(delta):
 			fill_cooldown = Global.get_fill_cooldown()
 
 		if Input.is_action_just_pressed("lock"):
-			if is_touching():
-				set_game_state(LOCKING)
-			else:
-				denied_sound.play()
+			#if is_touching():
+			set_game_state(LOCKING)
+			# else:
+			# 	denied_sound.play()
 
 		for i in range(pending.size()):
 			if i >= pending.size():
@@ -765,54 +786,32 @@ func alert():
 	for p in pending:
 		set_cell(0, Vector2i(p[0], p[1]), 1, Vector2i(0, 2))
 
-func get_closest(x, y, color):
+func get_closest(x, y, direction):
 	var left = 0
 	var right = 0
 	var up = 0
 	var down = 0
 
-	while x-left >= 0 and (state[x-left][y] == null or left == 0):
-		left += 1
+	if direction == Block.LEFT:
+		while x-left >= 0 and (state[x-left][y] == null or left == 0):
+			left += 1
 
-	while x+right < Global.GRID_SIZE and (state[x+right][y] == null or right == 0):
-		right += 1
+		return Vector2(x-left, y)
 
-	while y-up >= 0 and (state[x][y-up] == null or up == 0):
-		up += 1
+	if direction == Block.RIGHT:
+		while x+right < Global.GRID_SIZE and (state[x+right][y] == null or right == 0):
+			right += 1
 
-	while y+down < Global.GRID_SIZE and (state[x][y+down] == null or down == 0):
-		down += 1
+		return Vector2(x+right, y)
 
-	left -= 1
-	right -= 1
-	up -= 1
-	down -= 1
+	if direction == Block.UP:
+		while y-up >= 0 and (state[x][y-up] == null or up == 0):
+			up += 1
 
-	var closest = left
-	var closest_point = [x-left, y]
+		return Vector2(x, y-up)
 
-	if right < closest:
-		closest = right
-		closest_point = [x+right, y]
+	if direction == Block.DOWN:
+		while y+down < Global.GRID_SIZE and (state[x][y+down] == null or down == 0):
+			down += 1
 
-	if right == closest and state[x+right][y] != null and state[x+right][y].color == color:
-		closest = right
-		closest_point = [x+right, y]
-
-	if down < closest:
-		closest = down
-		closest_point = [x, y+down]
-
-	if down == closest and state[x][y+down] != null and state[x][y+down].color == color:
-		closest = down
-		closest_point = [x, y+down]
-
-	if up < closest:
-		closest = up
-		closest_point = [x, y-up]
-
-	if up == closest and state[x][y-up] != null and  state[x][y-up].color == color:
-		closest = up
-		closest_point = [x, y-up]
-
-	return closest_point
+		return Vector2(x, y+down)

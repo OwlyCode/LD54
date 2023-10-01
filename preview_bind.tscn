@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://ctrhx20oulrhg"]
+
+[ext_resource type="Shader" path="res://line.gdshader" id="1_on7op"]
+[ext_resource type="Texture2D" uid="uid://ejpmfe1egsb4" path="res://ray.png" id="2_2j5j4"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_o072s"]
+shader = ExtResource("1_on7op")
+
+[node name="PreviewBind" type="Line2D"]
+z_index = -10
+z_as_relative = false
+texture_repeat = 2
+material = SubResource("ShaderMaterial_o072s")
+points = PackedVector2Array(73, 72, 8, 72)
+width = 16.0
+default_color = Color(1, 0.0980392, 0.207843, 0.470588)
+texture = ExtResource("2_2j5j4")
+texture_mode = 1

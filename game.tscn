@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://bhdo4vuebjyu4"]
+[gd_scene load_steps=25 format=3 uid="uid://bhdo4vuebjyu4"]
 
 [ext_resource type="PackedScene" uid="uid://brswk8celtbm1" path="res://UI/volume.tscn" id="1_5ch4i"]
 [ext_resource type="AudioStream" uid="uid://hktgtd85nt12" path="res://Audio/placed1.wav" id="3_58vlb"]
@@ -21,6 +21,7 @@
 [ext_resource type="FontFile" uid="uid://daeh0btch7i26" path="res://PixelOperator-Bold.ttf" id="17_paoa7"]
 [ext_resource type="Script" path="res://Tutorial.gd" id="20_e2df4"]
 [ext_resource type="Script" path="res://PauseHandler.gd" id="21_t8jfo"]
+[ext_resource type="PackedScene" uid="uid://ctrhx20oulrhg" path="res://preview_bind.tscn" id="22_hbo45"]
 
 [sub_resource type="Curve" id="Curve_a328j"]
 max_value = 8.0
@@ -288,5 +289,15 @@ color_ramp = SubResource("Gradient_fwr1k")
 [node name="Node" type="Node2D" parent="."]
 process_mode = 3
 script = ExtResource("21_t8jfo")
+
+[node name="PreviewBind1" parent="." instance=ExtResource("22_hbo45")]
+z_index = 0
+z_as_relative = true
+points = PackedVector2Array(0, 0, 100, 100)
+
+[node name="PreviewBind2" parent="." instance=ExtResource("22_hbo45")]
+z_index = 0
+z_as_relative = true
+points = PackedVector2Array(69, 122, 8, 72)
 
 [connection signal="pressed" from="GameOverContainer/Restart" to="GameOverContainer/Restart" method="_on_pressed"]
