@@ -20,6 +20,9 @@ func get_fill_cooldown():
 func get_spawn_count():
 	var count = log(score+1) / 2 + 1
 
+	if score > 1000.0:
+		count += score / 1000
+
 	return count
 
 func _ready():

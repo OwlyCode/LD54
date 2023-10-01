@@ -20,13 +20,13 @@ func _process(delta):
 
 	match color:
 		Block.RED:
-			self_modulate = RED
+			modulate = RED
 		Block.BLUE:
-			self_modulate = BLUE
+			modulate = BLUE
 		Block.GREEN:
-			self_modulate = GREEN
+			modulate = GREEN
 		Block.VIOLET:
-			self_modulate = VIOLET
+			modulate = VIOLET
 
 	if position.distance_squared_to(target) < 2.0:
 		Global.score += score

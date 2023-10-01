@@ -15,9 +15,9 @@ func _process(delta):
 
 	visible = c > 1.0
 
-	if c >= 32.0:
+	if c >= 16.0:
 		text = "[center][b][wave][rainbow]COMBO x%d!!![/rainbow][/wave][/b][/center]" % c
-	elif c >= 16.0:
+	elif c >= 8.0:
 		text = "[center][wave][b]COMBO x%d!!![/b][/wave][/center]" % c
 	elif c >= 4.0:
 		text = "[center][wave][b]COMBO x%d[/b][/wave][/center]" % c

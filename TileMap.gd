@@ -35,9 +35,30 @@ var MovementFx = preload("res://movement_fx.tscn")
 var ExplosionFx = preload("res://explosion.tscn")
 var ParticleFx = preload("res://particle.tscn")
 
+var placed_sound_offset = 0
+
+@onready var placed_sound = [
+	get_node("/root/game/Audio/Placed1"),
+	get_node("/root/game/Audio/Placed2"),
+	get_node("/root/game/Audio/Placed3")
+]
+
+var match_sequence = 0
+
+@onready var match_sound = [
+	get_node("/root/game/Audio/Matched1"),
+	get_node("/root/game/Audio/Matched2"),
+	get_node("/root/game/Audio/Matched3"),
+	get_node("/root/game/Audio/Matched4")
+]
+
+@onready var rotate_sound = get_node("/root/game/Audio/Rotate")
+
 func _ready():
 	state = blank_state()
 	gravity = blank_state()
+
+	Global.score = 0
 
 	for i in range(Global.GRID_SIZE):
 		for j in range(Global.GRID_SIZE):
@@ -200,6 +221,9 @@ func lock():
 		change_state(cell[0], cell[1], cell[2])
 		fluid_cells.append([cell[0], cell[1]])
 
+	placed_sound[placed_sound_offset].play()
+	placed_sound_offset = (placed_sound_offset + 1) % 3
+
 	var matched = []
 
 	for cell in active_cells:
@@ -225,6 +249,7 @@ func change_state(x, y, block):
 
 func pack():
 	var all_moved = []
+	var moved = false
 
 	while len(fluid_cells) > 0:
 		var lookup = [] + fluid_cells
@@ -245,6 +270,7 @@ func pack():
 						o += 1
 
 					if e:
+						moved = true
 						o -= 1
 						var movement = MovementFx.instantiate()
 						movement.source = map_to_local(Vector2i(i, j))
@@ -263,6 +289,7 @@ func pack():
 						o += 1
 
 					if e:
+						moved = true
 						o -= 1
 						var movement = MovementFx.instantiate()
 						movement.source = map_to_local(Vector2i(i, j))
@@ -281,6 +308,7 @@ func pack():
 						o += 1
 
 					if e:
+						moved = true
 						o -= 1
 						var movement = MovementFx.instantiate()
 						movement.source = map_to_local(Vector2i(i, j))
@@ -299,6 +327,7 @@ func pack():
 						o += 1
 
 					if e:
+						moved = true
 						o -= 1
 						var movement = MovementFx.instantiate()
 						movement.source = map_to_local(Vector2i(i, j))
@@ -307,6 +336,10 @@ func pack():
 
 						change_state(i+o, j, state[i][j])
 						change_state(i, j, null)
+
+	if moved:
+		placed_sound[placed_sound_offset].play()
+		placed_sound_offset = (placed_sound_offset + 1) % 3
 
 	var matches = []
 
@@ -328,15 +361,23 @@ func pack():
 func spawn_piece():
 	var blocks = next_pieces.pop_front()
 
+	var possible_positions = [Vector2i(0, 1), Vector2i(0, -1), Vector2i(1, 0), Vector2i(-1, 0)]
+
 	if state[Global.GRID_SIZE/2][Global.GRID_SIZE/2] != null:
 		set_game_state(LOST)
+		return
 
-	if state[Global.GRID_SIZE/2-1][Global.GRID_SIZE/2] != null:
+	possible_positions = possible_positions.filter(func (p):
+		return state[Global.GRID_SIZE/2 + p.x][Global.GRID_SIZE/2 + p.y] == null
+	)
+
+	if len(possible_positions) == 0:
 		set_game_state(LOST)
+		return
 
 	active_cells = [
 		[Global.GRID_SIZE/2, Global.GRID_SIZE/2, blocks[0]],
-		[Global.GRID_SIZE/2-1, Global.GRID_SIZE/2, blocks[1]]
+		[Global.GRID_SIZE/2 + possible_positions[0].x, Global.GRID_SIZE/2 + possible_positions[0].y, blocks[1]]
 	]
 
 	next_pieces.append([
@@ -366,10 +407,11 @@ func draw(delta):
 
 	var ui = get_node("/root/game/UI")
 
-	var next = next_pieces[0]
+	if len(next_pieces) > 0:
+		var next = next_pieces[0]
 
-	ui.set_cell(0, Vector2i(-5, 5), 1, next[0].get_color())
-	ui.set_cell(0, Vector2i(-4, 5), 1, next[1].get_color())
+		ui.set_cell(0, Vector2i(-5, 5), 1, next[0].get_color())
+		ui.set_cell(0, Vector2i(-4, 5), 1, next[1].get_color())
 
 	clear()
 
@@ -404,21 +446,25 @@ func rotate_piece():
 
 	if active_cells[1][0] == root_cell[0] - 1: # LEFT
 		if root_cell[1] > 0 and state[root_cell[0]][root_cell[1]-1] == null:
+			rotate_sound.play()
 			active_cells[1][0] = root_cell[0]
 			active_cells[1][1] = root_cell[1] - 1
 
 	elif active_cells[1][0] == root_cell[0] + 1: # RIGHT
 		if root_cell[1] < Global.GRID_SIZE - 1 and state[root_cell[0]][root_cell[1]+1] == null:
+			rotate_sound.play()
 			active_cells[1][0] = root_cell[0]
 			active_cells[1][1] = root_cell[1] + 1
 
 	elif active_cells[1][1] == root_cell[1] - 1: # UP
 		if root_cell[0] < Global.GRID_SIZE - 1 and state[root_cell[0]+1][root_cell[1]] == null:
+			rotate_sound.play()
 			active_cells[1][0] = root_cell[0] + 1
 			active_cells[1][1] = root_cell[1]
 
 	elif active_cells[1][1] == root_cell[1] + 1: # DOWN
 		if root_cell[0] > 0 and state[root_cell[0]-1][root_cell[1]] == null:
+			rotate_sound.play()
 			active_cells[1][0] = root_cell[0] - 1
 			active_cells[1][1] = root_cell[1]
 
@@ -428,11 +474,16 @@ func set_game_state(s):
 			lock_cooldown = Global.LOCK_TIME
 		if s == MATCHING:
 			lock_cooldown = Global.COMBO_TIME
+		if s == LOST:
+			get_node("/root/game/GameOverContainer").visible = true
 
 	game_state = s
 
 func _physics_process(delta):
 	if game_state == LOST:
+		if Input.is_action_just_pressed("rotate"):
+			get_tree().change_scene_to_file("res://game.tscn")
+
 		return
 
 	if game_state == LOCKING:
@@ -529,9 +580,7 @@ func _physics_process(delta):
 		fill_cooldown -= delta
 
 		if fill_cooldown < 0:
-			print(Global.get_spawn_count())
 			for i in range(0, Global.get_spawn_count()):
-				print("GO")
 				add_pending()
 			fill_cooldown = Global.get_fill_cooldown()
 

@@ -1,13 +1,21 @@
-[gd_scene load_steps=9 format=3 uid="uid://bhdo4vuebjyu4"]
+[gd_scene load_steps=17 format=3 uid="uid://bhdo4vuebjyu4"]
 
 [ext_resource type="PackedScene" uid="uid://brswk8celtbm1" path="res://UI/volume.tscn" id="1_5ch4i"]
+[ext_resource type="AudioStream" uid="uid://hktgtd85nt12" path="res://Audio/placed1.wav" id="3_58vlb"]
 [ext_resource type="TileSet" uid="uid://bo21h3gl31ndk" path="res://tileset.tres" id="3_ie55p"]
 [ext_resource type="Script" path="res://TileMap.gd" id="3_k2dhn"]
+[ext_resource type="AudioStream" uid="uid://dfvy80cye3ntl" path="res://Audio/placed2.wav" id="4_k0vi0"]
 [ext_resource type="Script" path="res://UI.gd" id="5_4veao"]
 [ext_resource type="AudioStream" uid="uid://cfrppsq24npcp" path="res://LD54.wav" id="5_eiy3q"]
 [ext_resource type="Script" path="res://Score.gd" id="5_l5a5e"]
+[ext_resource type="AudioStream" uid="uid://bkk65uctrrqug" path="res://Audio/placed3.wav" id="5_u3jwj"]
+[ext_resource type="AudioStream" uid="uid://cvp17hvsr4umo" path="res://Audio/match1.wav" id="6_d0g4b"]
 [ext_resource type="Script" path="res://Combo.gd" id="6_usjc0"]
-[ext_resource type="PackedScene" uid="uid://dm2s2015ct3i2" path="res://particle.tscn" id="7_ycbcy"]
+[ext_resource type="AudioStream" uid="uid://dpjomp5vsduyu" path="res://Audio/match2.wav" id="7_hadl1"]
+[ext_resource type="AudioStream" uid="uid://dm20tek6elwgn" path="res://Audio/match3.wav" id="8_blt21"]
+[ext_resource type="Script" path="res://Restart.gd" id="8_shpyx"]
+[ext_resource type="AudioStream" uid="uid://bldhvoeejlwee" path="res://Audio/match4.wav" id="9_l48qk"]
+[ext_resource type="AudioStream" uid="uid://e5c8sp633ux8" path="res://Audio/rotate.wav" id="10_ie3ax"]
 
 [node name="game" type="Node2D"]
 texture_filter = 1
@@ -28,6 +36,37 @@ theme_override_constants/margin_bottom = 10
 
 [node name="Volume" parent="CanvasLayer/MarginContainer" instance=ExtResource("1_5ch4i")]
 layout_mode = 2
+
+[node name="Audio" type="Node" parent="."]
+
+[node name="Music" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("5_eiy3q")
+volume_db = -5.0
+autoplay = true
+
+[node name="Placed1" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("3_58vlb")
+
+[node name="Placed2" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("4_k0vi0")
+
+[node name="Placed3" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("5_u3jwj")
+
+[node name="Match1" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("6_d0g4b")
+
+[node name="Match2" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("7_hadl1")
+
+[node name="Match3" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("8_blt21")
+
+[node name="Match4" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("9_l48qk")
+
+[node name="Rotate" type="AudioStreamPlayer" parent="Audio"]
+stream = ExtResource("10_ie3ax")
 
 [node name="CPUParticles2D" type="CPUParticles2D" parent="."]
 z_index = -2000
@@ -93,10 +132,6 @@ offset_bottom = 79.0
 size_flags_horizontal = 0
 text = "NEXT"
 
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("5_eiy3q")
-autoplay = true
-
 [node name="Combo" type="RichTextLabel" parent="."]
 offset_left = 103.0
 offset_top = 186.0
@@ -107,7 +142,32 @@ bbcode_enabled = true
 text = "[center][b][wave][rainbow]COMBO x333!!![/rainbow][/wave][/b][/center]"
 script = ExtResource("6_usjc0")
 
-[node name="Particle" parent="." instance=ExtResource("7_ycbcy")]
-
 [node name="ParticleTarget" type="Node2D" parent="."]
 position = Vector2(-64, 36)
+
+[node name="GameOverContainer" type="Control" parent="."]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+
+[node name="GameOver" type="RichTextLabel" parent="GameOverContainer"]
+offset_left = -9.0
+offset_top = 54.0
+offset_right = 185.0
+offset_bottom = 140.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/normal_font_size = 30
+bbcode_enabled = true
+text = "[center][wave][color=#da2424]GAME OVER[/color][/wave][/center]"
+
+[node name="Restart" type="Button" parent="GameOverContainer"]
+offset_left = 22.0
+offset_top = 97.0
+offset_right = 152.0
+offset_bottom = 127.0
+theme_override_font_sizes/font_size = 15
+text = "RESTART (SPACE)"
+script = ExtResource("8_shpyx")
+
+[connection signal="pressed" from="GameOverContainer/Restart" to="GameOverContainer/Restart" method="_on_pressed"]

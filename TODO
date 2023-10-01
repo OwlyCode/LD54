@@ -1,9 +1,11 @@
 JUICE
-    - Sound (lock, combo)
     - Screen Shake (lock, combo)
+    - Block spawning
+    - denied action sound
 
-- Improve spawning
-- Gameover screen
+- connect matching colors
+
+- TUTO
 
 - Gamepad
 
