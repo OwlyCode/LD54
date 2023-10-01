@@ -608,7 +608,7 @@ func _physics_process(delta):
 
 		fill_cooldown -= delta
 
-		if fill_cooldown < 0:
+		if fill_cooldown < 0 and Global.first_match:
 			for i in range(0, Global.get_spawn_count()):
 				add_pending()
 			fill_cooldown = Global.get_fill_cooldown()

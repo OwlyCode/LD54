@@ -186,7 +186,7 @@ text = "[center][b][wave][rainbow]COMBO x333!!![/rainbow][/wave][/b][/center]"
 script = ExtResource("6_usjc0")
 
 [node name="ParticleTarget" type="Node2D" parent="."]
-position = Vector2(-64, 36)
+position = Vector2(-49, 31)
 
 [node name="GameOverContainer" type="Control" parent="."]
 visible = false
