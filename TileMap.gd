@@ -279,6 +279,7 @@ func pack():
 						var movement = MovementFx.instantiate()
 						movement.source = map_to_local(Vector2i(i, j))
 						movement.target = map_to_local(Vector2i(i, j+o))
+						movement.color = state[i][j].color
 						add_child(movement)
 
 						change_state(i, j+o, state[i][j])
@@ -298,6 +299,7 @@ func pack():
 						var movement = MovementFx.instantiate()
 						movement.source = map_to_local(Vector2i(i, j))
 						movement.target = map_to_local(Vector2i(i, j-o))
+						movement.color = state[i][j].color
 						add_child(movement)
 
 						change_state(i, j-o, state[i][j])
@@ -317,6 +319,7 @@ func pack():
 						var movement = MovementFx.instantiate()
 						movement.source = map_to_local(Vector2i(i, j))
 						movement.target = map_to_local(Vector2i(i-o, j))
+						movement.color = state[i][j].color
 						add_child(movement)
 
 						change_state(i-o, j, state[i][j])
@@ -336,6 +339,7 @@ func pack():
 						var movement = MovementFx.instantiate()
 						movement.source = map_to_local(Vector2i(i, j))
 						movement.target = map_to_local(Vector2i(i+o, j))
+						movement.color = state[i][j].color
 						add_child(movement)
 
 						change_state(i+o, j, state[i][j])
@@ -414,8 +418,8 @@ func draw(delta):
 	if len(next_pieces) > 0:
 		var next = next_pieces[0]
 
-		ui.set_cell(0, Vector2i(-5, 5), 1, next[0].get_color())
-		ui.set_cell(0, Vector2i(-4, 5), 1, next[1].get_color())
+		ui.set_cell(0, Vector2i(-4, 5), 1, next[0].get_color())
+		ui.set_cell(0, Vector2i(-3, 5), 1, next[1].get_color())
 
 	clear()
 
@@ -492,6 +496,8 @@ func set_game_state(s):
 	game_state = s
 
 func _physics_process(delta):
+	Global.time += delta
+
 	if game_state == LOST:
 		if Input.is_action_just_pressed("rotate"):
 			get_tree().change_scene_to_file("res://game.tscn")

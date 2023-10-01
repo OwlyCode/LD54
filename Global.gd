@@ -12,6 +12,7 @@ var ACTION_TIME = 0.1
 var PENDING_TIME = 1.0
 var COMBO_TIMEOUT = 5.0
 var score = 0
+var time = 0
 var first_match = false
 
 var keyboard_mode = true
