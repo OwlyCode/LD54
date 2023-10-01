@@ -1,6 +1,5 @@
 JUICE
     - Block spawning
-    - denied action sound
 
 - connect matching colors
 
@@ -10,4 +9,4 @@ JUICE
 
 Bugs:
     can't place on border
-    active pieces above appearing block
+    can't spawn blocks on the border

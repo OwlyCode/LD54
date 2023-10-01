@@ -616,7 +616,9 @@ func _physics_process(delta):
 
 			p[2] -= delta
 
-			if p[2] < 0:
+			var overlapping = active_cells.filter(func (c): return  c[0] == p[0] and c[1] == p[1])
+
+			if p[2] < 0 and len(overlapping) == 0:
 				if state[p[0]][p[1]] == null:
 					state[p[0]][p[1]] = Block.new_random()
 
