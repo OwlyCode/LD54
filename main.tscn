@@ -1,7 +1,18 @@
-[gd_scene load_steps=3 format=3 uid="uid://bkc16qjkvjx3b"]
+[gd_scene load_steps=8 format=3 uid="uid://bkc16qjkvjx3b"]
 
+[ext_resource type="FontFile" uid="uid://daeh0btch7i26" path="res://PixelOperator-Bold.ttf" id="1_1adqe"]
 [ext_resource type="PackedScene" uid="uid://brswk8celtbm1" path="res://UI/volume.tscn" id="1_1ili7"]
 [ext_resource type="Script" path="res://UI/Play.gd" id="2_m77ur"]
+[ext_resource type="FontFile" uid="uid://bit7jqyq4jv4o" path="res://PixelOperator.ttf" id="2_q08is"]
+[ext_resource type="Script" path="res://CTA.gd" id="5_qdctg"]
+
+[sub_resource type="Curve" id="Curve_mrouh"]
+max_value = 8.0
+_data = [Vector2(0, 0.99361), 0.0, 0.0, 0, 0, Vector2(1, 8), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_xveem"]
+offsets = PackedFloat32Array(0.114537, 0.396476)
 
 [node name="MainMenu" type="Node2D"]
 
@@ -22,25 +33,79 @@ theme_override_constants/margin_bottom = 10
 [node name="Volume" parent="CanvasLayer/MarginContainer" instance=ExtResource("1_1ili7")]
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer"]
+[node name="Title" type="RichTextLabel" parent="CanvasLayer"]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -20.5
-offset_top = -20.0
-offset_right = 20.5
-offset_bottom = 20.0
+offset_left = -538.5
+offset_top = -210.0
+offset_right = 538.5
+offset_bottom = -74.0
 grow_horizontal = 2
 grow_vertical = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
+theme_override_fonts/normal_font = ExtResource("1_1adqe")
+theme_override_font_sizes/normal_font_size = 128
+bbcode_enabled = true
+text = "[center][color=ecab11]B[/color]lockade [color=ecab11]B[/color]urst [color=ecab11]95[/color][/center]"
 
-[node name="Play" type="Button" parent="CanvasLayer/VBoxContainer"]
+[node name="Play" type="Button" parent="CanvasLayer"]
 custom_minimum_size = Vector2(100, 32)
-layout_mode = 2
-text = "Play"
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -111.5
+offset_top = -23.0
+offset_right = 111.5
+offset_bottom = 66.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("2_q08is")
+theme_override_font_sizes/font_size = 64
+text = "START"
 script = ExtResource("2_m77ur")
 
-[connection signal="pressed" from="CanvasLayer/VBoxContainer/Play" to="CanvasLayer/VBoxContainer/Play" method="_on_pressed"]
+[node name="CTA" type="RichTextLabel" parent="CanvasLayer"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -372.0
+offset_top = -254.0
+offset_right = 373.0
+offset_bottom = -142.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_fonts/normal_font = ExtResource("2_q08is")
+theme_override_font_sizes/normal_font_size = 32
+bbcode_enabled = true
+text = "[center]MADE BY [color=ecab11]TRISTAN MAINDRON[/color] FOR [color=ecab11]LUDUM DARE[/color] 54: LIMITED SPACE
+
+[url=https://twitter.com/OwlyCode]Follow me on social media![/url]
+[/center]"
+script = ExtResource("5_qdctg")
+
+[node name="CPUParticles2D" type="CPUParticles2D" parent="."]
+z_index = -2000
+z_as_relative = false
+amount = 320
+lifetime = 5.0
+preprocess = 5.0
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 100.0
+initial_velocity_max = 100.0
+linear_accel_min = 1.0
+linear_accel_max = 1.0
+scale_amount_curve = SubResource("Curve_mrouh")
+color_ramp = SubResource("Gradient_xveem")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(3, 3)
+
+[connection signal="pressed" from="CanvasLayer/Play" to="CanvasLayer/Play" method="_on_pressed"]
+[connection signal="meta_clicked" from="CanvasLayer/CTA" to="CanvasLayer/CTA" method="_on_meta_clicked"]

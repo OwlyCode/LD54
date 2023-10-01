@@ -2,7 +2,9 @@ JUICE
     - Block spawning (fade white)
     - Volume bar theming
 
-- connect matching colors
+- Wait first match before spawning
+- Global music
+- Pause
 
-- Game name
 - Main Menu
+- Game intro ?

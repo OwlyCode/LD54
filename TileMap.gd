@@ -61,6 +61,7 @@ func _ready():
 	gravity = blank_state()
 
 	Global.score = 0
+	Global.time = 0
 	Global.first_match = false
 
 	for i in range(Global.GRID_SIZE):
@@ -492,16 +493,15 @@ func set_game_state(s):
 			lock_cooldown = Global.COMBO_TIME
 		if s == LOST:
 			get_node("/root/game/GameOverContainer").visible = true
+			get_node("/root/game/GameOverContainer/Restart").grab_focus()
 
 	game_state = s
 
 func _physics_process(delta):
-	Global.time += delta
+	if game_state != LOST:
+		Global.time += delta
 
 	if game_state == LOST:
-		if Input.is_action_just_pressed("rotate"):
-			get_tree().change_scene_to_file("res://game.tscn")
-
 		return
 
 	if game_state == LOCKING:

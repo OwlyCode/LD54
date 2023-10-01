@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://bhdo4vuebjyu4"]
+[gd_scene load_steps=24 format=3 uid="uid://bhdo4vuebjyu4"]
 
 [ext_resource type="PackedScene" uid="uid://brswk8celtbm1" path="res://UI/volume.tscn" id="1_5ch4i"]
 [ext_resource type="AudioStream" uid="uid://hktgtd85nt12" path="res://Audio/placed1.wav" id="3_58vlb"]
@@ -21,6 +21,14 @@
 [ext_resource type="Script" path="res://Time.gd" id="16_g57pq"]
 [ext_resource type="FontFile" uid="uid://daeh0btch7i26" path="res://PixelOperator-Bold.ttf" id="17_paoa7"]
 [ext_resource type="Script" path="res://Tutorial.gd" id="20_e2df4"]
+
+[sub_resource type="Curve" id="Curve_a328j"]
+max_value = 8.0
+_data = [Vector2(0, 0.99361), 0.0, 0.0, 0, 0, Vector2(1, 8), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_fwr1k"]
+offsets = PackedFloat32Array(0, 0.334802)
 
 [node name="game" type="Node2D"]
 texture_filter = 1
@@ -78,6 +86,7 @@ stream = ExtResource("11_4yabd")
 volume_db = -5.0
 
 [node name="CPUParticles2D" type="CPUParticles2D" parent="."]
+visible = false
 z_index = -2000
 z_as_relative = false
 position = Vector2(72, 73)
@@ -184,37 +193,75 @@ visible = false
 layout_mode = 3
 anchors_preset = 0
 
+[node name="Panel" type="Panel" parent="GameOverContainer"]
+layout_mode = 0
+offset_left = -319.0
+offset_top = -201.0
+offset_right = 463.0
+offset_bottom = 451.0
+
 [node name="GameOver" type="RichTextLabel" parent="GameOverContainer"]
 layout_mode = 0
-offset_left = -9.0
-offset_top = 54.0
-offset_right = 185.0
+offset_left = -94.0
+offset_top = 48.0
+offset_right = 190.0
 offset_bottom = 140.0
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 2
 theme_override_fonts/normal_font = ExtResource("17_paoa7")
-theme_override_font_sizes/normal_font_size = 40
+theme_override_font_sizes/normal_font_size = 64
 bbcode_enabled = true
 text = "[center][wave][color=#da2424]GAME OVER[/color][/wave][/center]"
 
 [node name="Restart" type="Button" parent="GameOverContainer"]
 layout_mode = 0
-offset_left = 22.0
-offset_top = 97.0
-offset_right = 152.0
-offset_bottom = 127.0
+offset_left = -17.0
+offset_top = 111.0
+offset_right = 113.0
+offset_bottom = 151.0
 theme_override_fonts/font = ExtResource("15_xjiew")
-text = "RESTART (SPACE)"
+theme_override_font_sizes/font_size = 32
+text = "RESTART"
 script = ExtResource("8_shpyx")
 
 [node name="Tutorial" type="RichTextLabel" parent="."]
-offset_left = -25.0
+offset_left = -93.0
 offset_top = 195.0
-offset_right = 200.0
+offset_right = 192.0
 offset_bottom = 241.0
 theme_override_fonts/normal_font = ExtResource("15_xjiew")
 bbcode_enabled = true
 text = "[center]Arrow or WASD: move the blocks[/center]"
 script = ExtResource("20_e2df4")
+
+[node name="Title" type="RichTextLabel" parent="."]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -96.0
+offset_top = -47.0
+offset_right = 192.0
+offset_bottom = -6.0
+grow_horizontal = 2
+theme_override_fonts/normal_font = ExtResource("17_paoa7")
+theme_override_font_sizes/normal_font_size = 32
+bbcode_enabled = true
+text = "[center][color=ecab11]B[/color]lockade [color=ecab11]B[/color]urst [color=ecab11]95[/color][/center]"
+
+[node name="CPUParticles2D2" type="CPUParticles2D" parent="."]
+z_index = -2000
+z_as_relative = false
+position = Vector2(47, 87)
+amount = 320
+lifetime = 5.0
+preprocess = 5.0
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 100.0
+initial_velocity_max = 100.0
+linear_accel_min = 1.0
+linear_accel_max = 1.0
+scale_amount_curve = SubResource("Curve_a328j")
+color_ramp = SubResource("Gradient_fwr1k")
 
 [connection signal="pressed" from="GameOverContainer/Restart" to="GameOverContainer/Restart" method="_on_pressed"]
