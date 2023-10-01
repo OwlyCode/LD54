@@ -34,6 +34,7 @@ var combo_timeout = Global.COMBO_TIMEOUT
 var MovementFx = preload("res://movement_fx.tscn")
 var ExplosionFx = preload("res://explosion.tscn")
 var ParticleFx = preload("res://particle.tscn")
+var Fader = preload("res://fader.tscn")
 
 var placed_sound_offset = 0
 
@@ -55,6 +56,8 @@ var match_sequence = 0
 @onready var rotate_sound = get_node("/root/game/Audio/Rotate")
 
 @onready var denied_sound = get_node("/root/game/Audio/Denied")
+
+
 
 func _ready():
 	state = blank_state()
@@ -632,6 +635,12 @@ func _physics_process(delta):
 			if p[2] < 0 and len(overlapping) == 0:
 				if state[p[0]][p[1]] == null:
 					state[p[0]][p[1]] = Block.new_random()
+
+					var fader = Fader.instantiate()
+					fader.position = map_to_local(Vector2i(p[0], p[1]))
+					add_child(fader)
+
+					# TODO spawn
 
 				pending.remove_at(i)
 			else:
