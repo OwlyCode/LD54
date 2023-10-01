@@ -1,0 +1,13 @@
+[gd_scene load_steps=4 format=3 uid="uid://dm2s2015ct3i2"]
+
+[ext_resource type="Texture2D" uid="uid://dsfn06f2a4qd3" path="res://block.png" id="1_vl87v"]
+[ext_resource type="Script" path="res://Particle.gd" id="2_yve3e"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i81a4"]
+atlas = ExtResource("1_vl87v")
+region = Rect2(4, 68, 8, 8)
+
+[node name="Particle" type="Sprite2D"]
+position = Vector2(146, 228)
+texture = SubResource("AtlasTexture_i81a4")
+script = ExtResource("2_yve3e")

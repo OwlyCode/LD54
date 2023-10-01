@@ -18,22 +18,22 @@ var push = []
 
 var lock_cooldown = Global.LOCK_TIME
 var combo_cooldown = Global.COMBO_TIME
-var fill_cooldown = Global.FILL_COOLDOWN
+var fill_cooldown = Global.get_fill_cooldown()
 
 
 var defusals = 0
-var score = 0
 
 enum { DROPPING, LOCKING, MATCHING, LOST }
 
 var game_state = DROPPING
 
-var combo_multiplier = 1.0
+var combo_multiplier = 0.0
 
 var combo_timeout = Global.COMBO_TIMEOUT
 
 var MovementFx = preload("res://movement_fx.tscn")
 var ExplosionFx = preload("res://explosion.tscn")
+var ParticleFx = preload("res://particle.tscn")
 
 func _ready():
 	state = blank_state()
@@ -209,7 +209,7 @@ func lock():
 	active_cells = []
 
 	if len(matched) == 0:
-		combo_multiplier = 1.0
+		combo_multiplier = 0.0
 	else:
 		combo_timeout = Global.COMBO_TIMEOUT
 		combo_multiplier += 1.0
@@ -383,8 +383,6 @@ func draw(delta):
 
 	active_grid.clear()
 
-	get_node("/root/game/Score").text = "%d" % score
-
 	for i in range(Global.GRID_SIZE):
 		for j in range(Global.GRID_SIZE):
 			if state[i][j] != null:
@@ -460,18 +458,25 @@ func _physics_process(delta):
 
 		if combo_cooldown < 0:
 			for c in matching_cells:
-				change_state(c[0], c[1], null)
+				if state[c[0]][c[1]] == null: # quick hack for double color matching twice the same blocks
+					continue
 
 				var explosion = ExplosionFx.instantiate()
 				explosion.position = map_to_local(Vector2i(c[0], c[1]))
 				explosion.emitting = true
 				add_child(explosion)
 
+				var particle = ParticleFx.instantiate()
+				particle.position = map_to_local(Vector2i(c[0], c[1]))
+				particle.color = state[c[0]][c[1]].color
+				particle.score = max(1.0, combo_multiplier)
+				add_child(particle)
+
+				change_state(c[0], c[1], null)
+
 				for n in get_neighbors(c):
 					if state[n[0]][n[1]] != null:
 						fluid_cells.append([n[0], n[1]])
-
-			score += len(matching_cells) * combo_multiplier
 
 			matching_cells = pack()
 			combo_cooldown = Global.COMBO_TIME
@@ -518,14 +523,17 @@ func _physics_process(delta):
 		combo_timeout -= delta
 
 		if combo_timeout < 0.0:
-			combo_multiplier = 1.0
+			combo_multiplier = 0.0
 			combo_timeout = Global.COMBO_TIMEOUT
 
 		fill_cooldown -= delta
 
 		if fill_cooldown < 0:
-			add_pending()
-			fill_cooldown = Global.FILL_COOLDOWN
+			print(Global.get_spawn_count())
+			for i in range(0, Global.get_spawn_count()):
+				print("GO")
+				add_pending()
+			fill_cooldown = Global.get_fill_cooldown()
 
 		if Input.is_action_just_pressed("lock") and is_touching():
 			set_game_state(LOCKING)

@@ -4,7 +4,8 @@
 [ext_resource type="Script" path="res://Trail.gd" id="2_xi5cg"]
 
 [sub_resource type="Gradient" id="Gradient_sj1lw"]
-colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1)
+offsets = PackedFloat32Array(0, 0.449339, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1)
 
 [node name="Movement" type="Node2D"]
 show_behind_parent = true

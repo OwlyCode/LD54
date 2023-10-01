@@ -1,12 +1,11 @@
-speedup
 JUICE
-    - Well done / Nice / AWESOME / GODLIKE / HYPERRRRR
     - Sound (lock, combo)
     - Screen Shake (lock, combo)
 
 - Improve spawning
 - Gameover screen
-- Coins from destroyed block floating to the score
+
+- Gamepad
 
 Bugs:
     can't place on border
