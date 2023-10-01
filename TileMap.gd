@@ -23,7 +23,7 @@ var fill_cooldown = Global.get_fill_cooldown()
 
 var defusals = 0
 
-enum { DROPPING, LOCKING, MATCHING, LOST }
+enum { DROPPING, LOCKING, MATCHING, LOST, PAUSED }
 
 var game_state = DROPPING
 

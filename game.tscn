@@ -6,7 +6,6 @@
 [ext_resource type="Script" path="res://TileMap.gd" id="3_k2dhn"]
 [ext_resource type="AudioStream" uid="uid://dfvy80cye3ntl" path="res://Audio/placed2.wav" id="4_k0vi0"]
 [ext_resource type="Script" path="res://UI.gd" id="5_4veao"]
-[ext_resource type="AudioStream" uid="uid://cfrppsq24npcp" path="res://LD54.wav" id="5_eiy3q"]
 [ext_resource type="Script" path="res://Score.gd" id="5_l5a5e"]
 [ext_resource type="AudioStream" uid="uid://bkk65uctrrqug" path="res://Audio/placed3.wav" id="5_u3jwj"]
 [ext_resource type="AudioStream" uid="uid://cvp17hvsr4umo" path="res://Audio/match1.wav" id="6_d0g4b"]
@@ -21,6 +20,7 @@
 [ext_resource type="Script" path="res://Time.gd" id="16_g57pq"]
 [ext_resource type="FontFile" uid="uid://daeh0btch7i26" path="res://PixelOperator-Bold.ttf" id="17_paoa7"]
 [ext_resource type="Script" path="res://Tutorial.gd" id="20_e2df4"]
+[ext_resource type="Script" path="res://PauseHandler.gd" id="21_t8jfo"]
 
 [sub_resource type="Curve" id="Curve_a328j"]
 max_value = 8.0
@@ -51,11 +51,6 @@ theme_override_constants/margin_bottom = 10
 layout_mode = 2
 
 [node name="Audio" type="Node" parent="."]
-
-[node name="Music" type="AudioStreamPlayer" parent="Audio"]
-stream = ExtResource("5_eiy3q")
-volume_db = -5.0
-autoplay = true
 
 [node name="Placed1" type="AudioStreamPlayer" parent="Audio"]
 stream = ExtResource("3_58vlb")
@@ -188,6 +183,32 @@ script = ExtResource("6_usjc0")
 [node name="ParticleTarget" type="Node2D" parent="."]
 position = Vector2(-49, 31)
 
+[node name="PauseContainer" type="Control" parent="."]
+process_mode = 3
+visible = false
+layout_mode = 3
+anchors_preset = 0
+
+[node name="Panel" type="Panel" parent="PauseContainer"]
+layout_mode = 0
+offset_left = -319.0
+offset_top = -201.0
+offset_right = 463.0
+offset_bottom = 451.0
+
+[node name="GameOver" type="RichTextLabel" parent="PauseContainer"]
+layout_mode = 0
+offset_left = -94.0
+offset_top = 48.0
+offset_right = 190.0
+offset_bottom = 140.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/normal_font = ExtResource("17_paoa7")
+theme_override_font_sizes/normal_font_size = 64
+bbcode_enabled = true
+text = "[center][wave]PAUSE[/wave][/center]"
+
 [node name="GameOverContainer" type="Control" parent="."]
 visible = false
 layout_mode = 3
@@ -263,5 +284,9 @@ linear_accel_min = 1.0
 linear_accel_max = 1.0
 scale_amount_curve = SubResource("Curve_a328j")
 color_ramp = SubResource("Gradient_fwr1k")
+
+[node name="Node" type="Node2D" parent="."]
+process_mode = 3
+script = ExtResource("21_t8jfo")
 
 [connection signal="pressed" from="GameOverContainer/Restart" to="GameOverContainer/Restart" method="_on_pressed"]

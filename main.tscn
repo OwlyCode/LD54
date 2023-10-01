@@ -1,10 +1,11 @@
-[gd_scene load_steps=8 format=3 uid="uid://bkc16qjkvjx3b"]
+[gd_scene load_steps=9 format=3 uid="uid://bkc16qjkvjx3b"]
 
 [ext_resource type="FontFile" uid="uid://daeh0btch7i26" path="res://PixelOperator-Bold.ttf" id="1_1adqe"]
 [ext_resource type="PackedScene" uid="uid://brswk8celtbm1" path="res://UI/volume.tscn" id="1_1ili7"]
 [ext_resource type="Script" path="res://UI/Play.gd" id="2_m77ur"]
 [ext_resource type="FontFile" uid="uid://bit7jqyq4jv4o" path="res://PixelOperator.ttf" id="2_q08is"]
 [ext_resource type="Script" path="res://CTA.gd" id="5_qdctg"]
+[ext_resource type="TileSet" uid="uid://bo21h3gl31ndk" path="res://tileset.tres" id="6_5u1ag"]
 
 [sub_resource type="Curve" id="Curve_mrouh"]
 max_value = 8.0
@@ -15,6 +16,7 @@ point_count = 2
 offsets = PackedFloat32Array(0.114537, 0.396476)
 
 [node name="MainMenu" type="Node2D"]
+texture_filter = 1
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -22,8 +24,10 @@ offsets = PackedFloat32Array(0.114537, 0.396476)
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -163.0
-offset_bottom = 40.0
+offset_left = -597.0
+offset_top = 542.0
+offset_right = -426.0
+offset_bottom = 582.0
 grow_horizontal = 0
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 10
@@ -40,13 +44,13 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -538.5
-offset_top = -210.0
+offset_top = -298.0
 offset_right = 538.5
-offset_bottom = -74.0
+offset_bottom = -162.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_fonts/normal_font = ExtResource("1_1adqe")
-theme_override_font_sizes/normal_font_size = 128
+theme_override_font_sizes/normal_font_size = 100
 bbcode_enabled = true
 text = "[center][color=ecab11]B[/color]lockade [color=ecab11]B[/color]urst [color=ecab11]95[/color][/center]"
 
@@ -58,9 +62,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -111.5
-offset_top = -23.0
+offset_top = -62.0
 offset_right = 111.5
-offset_bottom = 66.0
+offset_bottom = 27.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_fonts/font = ExtResource("2_q08is")
@@ -75,9 +79,9 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -372.0
-offset_top = -254.0
+offset_top = -314.0
 offset_right = 373.0
-offset_bottom = -142.0
+offset_bottom = -202.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_fonts/normal_font = ExtResource("2_q08is")
@@ -106,6 +110,11 @@ color_ramp = SubResource("Gradient_xveem")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 zoom = Vector2(3, 3)
+
+[node name="GameGrid" type="TileMap" parent="."]
+tile_set = ExtResource("6_5u1ag")
+format = 2
+layer_0/tile_data = PackedInt32Array(589814, 65537, 0, 655350, 131073, 0, 589813, 1, 0, 655349, 1, 0, 720885, 65537, 0, 786422, 65537, 0, 720886, 65537, 0, 655351, 65537, 0, 720887, 65537, 0, 720888, 65537, 0, 786424, 65537, 0, 786425, 65537, 0, 786426, 65537, 0, 786427, 65537, 0, 786428, 65537, 0, 720893, 65537, 0, 720894, 65537, 0, 720895, 131073, 0, 786431, 131073, 0, 720896, 65537, 0, 720897, 196609, 0, 655362, 131073, 0, 655363, 65537, 0, 655364, 1, 0, 655365, 1, 0, 655366, 65537, 0, 655367, 131073, 0, 655368, 65537, 0, 655369, 65537, 0, 655370, 65537, 0, 589834, 1, 0, 524298, 1, 0, 458762, 65537, 0, 393226, 131073, 0, 327690, 131073, 0, 65545, 65537, 0, 524297, 131073, 0, 589833, 65537, 0, 655361, 65537, 0, 655360, 65537, 0, 720892, 196609, 0, 720891, 131073, 0, 720890, 65537, 0, 720889, 131073, 0, 655352, 65537, 0, 655353, 196609, 0, 393205, 65537, 0, 327669, 131073, 0, 262133, 131073, 0, 196597, 65537, 0, 458741, 65537, 0, 262154, 131073, 0, 196618, 196609, 0, 131082, 196609, 0, 524292, 131073, 0, 524291, 65537, 0, 589827, 131073, 0, 589826, 131073, 0, 589825, 65537, 0, 524290, 65537, 0, 589829, 65537, 0, 589828, 65537, 0, 131061, 196609, 0, 65525, 65537, 0, -11, 65537, 0, -65547, 65537, 0, -131083, 65537, 0, -196619, 65537, 0, -262155, 196609, 0, -327691, 65537, 0, -393227, 65537, 0, -458763, 65537, 0, -524299, 65537, 0, -589835, 65537, 0, -655371, 65537, 0, -655370, 65537, 0, -655369, 65537, 0, -655368, 65537, 0, -655367, 65537, 0, -655366, 65537, 0, -655365, 65537, 0, -655364, 1, 0, -655363, 1, 0, -655362, 65537, 0, -655361, 65537, 0, -720896, 196609, 0, -720895, 196609, 0, -720894, 196609, 0, -720893, 65537, 0, -720892, 65537, 0, -524278, 65537, 0, -458742, 131073, 0, -393206, 131073, 0, -327670, 131073, 0, -262134, 65537, 0, -196598, 65537, 0, -131062, 1, 0, -65526, 65537, 0, 10, 65537, 0, 65546, 65537, 0, 9, 1, 0, -65527, 1, 0, -131063, 1, 0, -196599, 1, 0, -524279, 65537, 0, -655357, 65537, 0, -655358, 65537, 0, -655359, 196609, 0, -655360, 196609, 0, -589825, 65537, 0, -589826, 65537, 0, -589827, 1, 0, -589828, 1, 0, -589829, 1, 0, -589830, 1, 0, -589831, 65537, 0, -589832, 65537, 0, -589833, 196609, 0, -589834, 196609, 0, 262134, 131073, 0, 196598, 196609, 0, 131062, 65537, 0, 65526, 65537, 0, -10, 65537, 0, -65546, 1, 0, -131082, 1, 0, -458762, 65537, 0, -524298, 65537, 0, -589815, 131073, 0, -655351, 65537, 0, -720887, 131073, 0, -655350, 131073, 0, -720886, 131073, 0, -589814, 65537, 0, -720888, 65537, 0, -655352, 65537, 0, -655353, 65537, 0, -720890, 65537, 0, -720891, 131073, 0, -720889, 131073, 0, -786424, 131073, 0, -655355, 131073, 0, -655356, 131073, 0, -655354, 65537, 0, -589818, 131073, 0, -589817, 131073, 0, -9, 1, 0, -65545, 1, 0, -65528, 1, 0, 8, 1, 0, -524293, 1, 0, -524292, 1, 0, -524291, 1, 0, 196599, 196609, 0, -524297, 196609, 0, 655357, 131073, 0, 655358, 65537, 0, 655355, 131073, 0, 655356, 131073, 0, 589821, 196609, 0, 589820, 196609, 0, 524277, 65537, 0)
 
 [connection signal="pressed" from="CanvasLayer/Play" to="CanvasLayer/Play" method="_on_pressed"]
 [connection signal="meta_clicked" from="CanvasLayer/CTA" to="CanvasLayer/CTA" method="_on_meta_clicked"]

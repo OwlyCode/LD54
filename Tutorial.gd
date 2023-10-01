@@ -19,7 +19,6 @@ func _ready():
 	translate()
 
 func translate():
-	print("GOGO")
 	for action in InputMap.get_actions():
 		var keys = []
 		for event in InputMap.action_get_events(action):
@@ -33,7 +32,6 @@ func translate():
 				keys.append(key_name)
 
 		if len(keys) > 0:
-			#print("%s -> %s" % [action, keys])
 			text = text.replace("__%s__" % action, " or ".join(keys))
 
 
