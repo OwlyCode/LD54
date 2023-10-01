@@ -54,6 +54,8 @@ var match_sequence = 0
 
 @onready var rotate_sound = get_node("/root/game/Audio/Rotate")
 
+@onready var denied_sound = get_node("/root/game/Audio/Denied")
+
 func _ready():
 	state = blank_state()
 	gravity = blank_state()
@@ -449,24 +451,32 @@ func rotate_piece():
 			rotate_sound.play()
 			active_cells[1][0] = root_cell[0]
 			active_cells[1][1] = root_cell[1] - 1
+		else:
+			denied_sound.play()
 
 	elif active_cells[1][0] == root_cell[0] + 1: # RIGHT
 		if root_cell[1] < Global.GRID_SIZE - 1 and state[root_cell[0]][root_cell[1]+1] == null:
 			rotate_sound.play()
 			active_cells[1][0] = root_cell[0]
 			active_cells[1][1] = root_cell[1] + 1
+		else:
+			denied_sound.play()
 
 	elif active_cells[1][1] == root_cell[1] - 1: # UP
 		if root_cell[0] < Global.GRID_SIZE - 1 and state[root_cell[0]+1][root_cell[1]] == null:
 			rotate_sound.play()
 			active_cells[1][0] = root_cell[0] + 1
 			active_cells[1][1] = root_cell[1]
+		else:
+			denied_sound.play()
 
 	elif active_cells[1][1] == root_cell[1] + 1: # DOWN
 		if root_cell[0] > 0 and state[root_cell[0]-1][root_cell[1]] == null:
 			rotate_sound.play()
 			active_cells[1][0] = root_cell[0] - 1
 			active_cells[1][1] = root_cell[1]
+		else:
+			denied_sound.play()
 
 func set_game_state(s):
 	if s != game_state:
@@ -496,6 +506,7 @@ func _physics_process(delta):
 			if len(matching_cells) > 0:
 				match_sound[match_sequence].play()
 				match_sequence = min(match_sequence + 1, 3)
+				Global.camera_shake(1, 2)
 				set_game_state(MATCHING)
 			else:
 				matching_cells = pack()
@@ -503,6 +514,7 @@ func _physics_process(delta):
 				if len(matching_cells) > 0:
 					match_sound[match_sequence].play()
 					match_sequence = min(match_sequence + 1, 3)
+					Global.camera_shake(1, 2)
 					set_game_state(MATCHING)
 				else:
 					set_game_state(DROPPING)
@@ -543,6 +555,7 @@ func _physics_process(delta):
 			else:
 				match_sound[match_sequence].play()
 				match_sequence = min(match_sequence + 1, 3)
+				Global.camera_shake(1, 2)
 
 	if Input.is_action_just_pressed("down") or (Input.is_action_pressed("down") and action_cooldown < 0):
 		push.append(Block.DOWN)

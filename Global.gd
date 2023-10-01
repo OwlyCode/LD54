@@ -47,3 +47,14 @@ func _deferred_goto_scene(s):
 		# Optional, to make it compatible with the SceneTree.change_scene() API.
 		get_tree().set_current_scene(current_scene)
 		loading = false
+
+func camera_shake(intensity = 1, duration = 1):
+	var camera = get_node("/root/game/Camera2D")
+
+	for i in range(duration):
+		camera.position.x += intensity
+		camera.position.y += intensity
+		await get_tree().create_timer(0.1).timeout
+		camera.position.x -= intensity
+		camera.position.y -= intensity
+		await get_tree().create_timer(0.1).timeout
