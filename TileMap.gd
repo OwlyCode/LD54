@@ -186,16 +186,16 @@ func get_neighbors(cell):
 	var n = []
 
 	if cell[0] > 0:
-		n.append([cell[0]-1, cell[1]])
+		n.append([cell[0]-1, cell[1], Block.LEFT])
 
 	if cell[0] < Global.GRID_SIZE - 1:
-		n.append([cell[0]+1, cell[1]])
+		n.append([cell[0]+1, cell[1], Block.RIGHT])
 
 	if cell[1] > 0:
-		n.append([cell[0], cell[1]-1])
+		n.append([cell[0], cell[1]-1, Block.UP])
 
 	if cell[1] < Global.GRID_SIZE - 1:
-		n.append([cell[0], cell[1]+1])
+		n.append([cell[0], cell[1]+1, Block.DOWN])
 
 	return n
 
@@ -224,6 +224,31 @@ func detect_match(cell):
 	return []
 
 func lock():
+	if active_border == Block.DOWN:
+		for i in range(0, Global.GRID_SIZE):
+			for j in range(Global.GRID_SIZE/2, Global.GRID_SIZE):
+				if state[i][j] != null:
+					fluid_cells.append([i, j])
+
+	if active_border == Block.UP:
+		for i in range(0, Global.GRID_SIZE):
+			for j in range(0, Global.GRID_SIZE/2+1):
+				if state[i][j] != null:
+					fluid_cells.append([i, j])
+
+	if active_border == Block.LEFT:
+		for i in range(0, Global.GRID_SIZE/2+1):
+			for j in range(0, Global.GRID_SIZE):
+				if state[i][j] != null:
+					fluid_cells.append([i, j])
+		print(len(fluid_cells))
+
+	if active_border == Block.RIGHT:
+		for i in range(Global.GRID_SIZE/2, Global.GRID_SIZE):
+			for j in range(0, Global.GRID_SIZE):
+				if state[i][j] != null:
+					fluid_cells.append([i, j])
+
 	for cell in active_cells:
 		change_state(cell[0], cell[1], cell[2])
 		fluid_cells.append([cell[0], cell[1]])
@@ -269,8 +294,20 @@ func pack():
 			var i = cell[0]
 			var j = cell[1]
 
+			if active_border == Block.DOWN and j <= Global.GRID_SIZE / 2:
+				continue
+
+			if active_border == Block.UP and j >= Global.GRID_SIZE / 2:
+				continue
+
+			if active_border == Block.LEFT and i >= Global.GRID_SIZE / 2:
+				continue
+
+			if active_border == Block.RIGHT and i <= Global.GRID_SIZE / 2:
+				continue
+
 			if state[i][j] != null:
-				if gravity[i][j] == Block.DOWN:
+				if active_border == Block.DOWN:
 					var o = 1
 					var e = false
 					while j < Global.GRID_SIZE - o and state[i][j+o] == null:
@@ -289,7 +326,7 @@ func pack():
 						change_state(i, j+o, state[i][j])
 						change_state(i, j, null)
 
-				if gravity[i][j] == Block.UP:
+				if active_border == Block.UP:
 					var o = 1
 					var e = false
 
@@ -309,7 +346,7 @@ func pack():
 						change_state(i, j-o, state[i][j])
 						change_state(i, j, null)
 
-				if gravity[i][j] == Block.LEFT:
+				if active_border == Block.LEFT:
 					var o = 1
 					var e = false
 
@@ -329,7 +366,7 @@ func pack():
 						change_state(i-o, j, state[i][j])
 						change_state(i, j, null)
 
-				if gravity[i][j] == Block.RIGHT:
+				if active_border == Block.RIGHT:
 					var o = 1
 					var e = false
 
@@ -592,6 +629,7 @@ func _physics_process(delta):
 		rotate_piece()
 		interacted = true
 
+	get_closest_edge()
 
 	if interacted:
 		action_cooldown = Global.ACTION_TIME
@@ -819,3 +857,56 @@ func get_closest(x, y, color):
 		closest_point = [x, y-up]
 
 	return closest_point
+
+
+var active_border = Block.DOWN
+
+func get_closest_edge():
+	draw_gravity()
+
+	var closests = []
+
+	for c in active_cells:
+		for n in get_neighbors(c):
+			if state[n[0]][n[1]] != null:
+				closests.append(n[2])
+
+		# if c[0] < Global.GRID_SIZE / 2:
+		# 	closests.append(Block.LEFT)
+		# elif c[0] > Global.GRID_SIZE / 2:
+		# 	closests.append(Block.RIGHT)
+		# if c[1] < Global.GRID_SIZE / 2:
+		# 	closests.append(Block.UP)
+		# elif c[1] > Global.GRID_SIZE / 2:
+		# 	closests.append(Block.DOWN)
+
+	print(closests)
+
+	if closests.find(last_dir) != -1:
+		active_border = last_dir
+
+
+func draw_gravity():
+	var ui = get_node("/root/game/UI")
+
+	for i in range(Global.GRID_SIZE + 2):
+		ui.set_cell(0, Vector2i(-1, -1 + i), 1, Vector2i(3, 5)) # LEFT
+		ui.set_cell(0, Vector2i(-1 + i, -1), 1, Vector2i(3, 5)) # UP
+		ui.set_cell(0, Vector2i(-1 + i, 11), 1, Vector2i(3, 5)) # DOWN
+		ui.set_cell(0, Vector2i(11, -1 + i), 1, Vector2i(3, 5)) # RIGHT
+
+	if active_border == Block.LEFT:
+		for i in range(Global.GRID_SIZE + 2):
+			ui.set_cell(0, Vector2i(-1, -1 + i), 1, Vector2i(3, 6)) # LEFT
+
+	if active_border == Block.UP:
+		for i in range(Global.GRID_SIZE + 2):
+			ui.set_cell(0, Vector2i(-1 + i, -1), 1, Vector2i(3, 6)) # UP
+
+	if active_border == Block.DOWN:
+		for i in range(Global.GRID_SIZE + 2):
+			ui.set_cell(0, Vector2i(-1 + i, 11), 1, Vector2i(3, 6)) # DOWN
+
+	if active_border == Block.RIGHT:
+		for i in range(Global.GRID_SIZE + 2):
+			ui.set_cell(0, Vector2i(11, -1 + i), 1, Vector2i(3, 6)) # RIGHT
