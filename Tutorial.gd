@@ -1,13 +1,13 @@
 extends RichTextLabel
 
-var keyboard_movement = "[center]⌨️ WASD or arrows: move the blocks.[/center]"
-var keyboard_rotate = "[center]⌨️ __rotate__: rotate blocks.[/center]"
-var keyboard_attach = "[center]⌨️ __lock__: place blocks.[/center]"
+var keyboard_movement = "[center]WASD or arrows: move the blocks.[/center]"
+var keyboard_rotate = "[center]__rotate__: rotate blocks.[/center]"
+var keyboard_attach = "[center]__lock__: place blocks.[/center]"
 var keyboard_match3 = "[center]Match 3 colors or more.[/center]"
 
-var controller_movement = "[center]🎮 Left stick: move the blocks.[/center]"
-var controller_rotate = "[center]🎮 X / Square: rotate blocks.[/center]"
-var controller_attach = "[center]🎮 A / Cross: place blocks.[/center]"
+var controller_movement = "[center]Left stick: move the blocks.[/center]"
+var controller_rotate = "[center]X / Square: rotate blocks.[/center]"
+var controller_attach = "[center]A / Cross: place blocks.[/center]"
 var controller_match3 = "[center]Match 3 colors or more.[/center]"
 
 enum {MOVEMENT, ROTATE, ATTACH, MATCH3, FINISHED}
@@ -15,7 +15,7 @@ enum {MOVEMENT, ROTATE, ATTACH, MATCH3, FINISHED}
 var state = MOVEMENT
 
 func _ready():
-	text = keyboard_rotate if Global.keyboard_mode else controller_rotate
+	text = keyboard_movement if Global.keyboard_mode else controller_movement
 	translate()
 
 func translate():
