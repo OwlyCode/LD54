@@ -33,6 +33,7 @@ var combo_multiplier = 1.0
 var combo_timeout = Global.COMBO_TIMEOUT
 
 var MovementFx = preload("res://movement_fx.tscn")
+var ExplosionFx = preload("res://explosion.tscn")
 
 func _ready():
 	state = blank_state()
@@ -460,6 +461,11 @@ func _physics_process(delta):
 		if combo_cooldown < 0:
 			for c in matching_cells:
 				change_state(c[0], c[1], null)
+
+				var explosion = ExplosionFx.instantiate()
+				explosion.position = map_to_local(Vector2i(c[0], c[1]))
+				explosion.emitting = true
+				add_child(explosion)
 
 				for n in get_neighbors(c):
 					if state[n[0]][n[1]] != null:

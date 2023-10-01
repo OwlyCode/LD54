@@ -1,16 +1,13 @@
 speedup
 JUICE
     - Well done / Nice / AWESOME / GODLIKE / HYPERRRRR
-    - Particles
-        - Block destruction
     - Sound (lock, combo)
     - Screen Shake (lock, combo)
-Score system
-    - defusing incoming blocks
-
 
 - Improve spawning
 - Gameover screen
+- Coins from destroyed block floating to the score
 
 Bugs:
     can't place on border
+    active pieces above appearing block
