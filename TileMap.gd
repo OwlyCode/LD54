@@ -605,8 +605,11 @@ func _physics_process(delta):
 				add_pending()
 			fill_cooldown = Global.get_fill_cooldown()
 
-		if Input.is_action_just_pressed("lock") and is_touching():
-			set_game_state(LOCKING)
+		if Input.is_action_just_pressed("lock"):
+			if is_touching():
+				set_game_state(LOCKING)
+			else:
+				denied_sound.play()
 
 		for i in range(pending.size()):
 			if i >= pending.size():
@@ -639,6 +642,18 @@ func _physics_process(delta):
 
 func is_touching():
 	for x in active_cells:
+		if x[0] == 0:
+			return true
+
+		if x[1] == 0:
+			return true
+
+		if x[0] == Global.GRID_SIZE - 1:
+			return true
+
+		if x[1] == Global.GRID_SIZE - 1:
+			return true
+
 		for n in get_neighbors(x):
 			if state[n[0]][n[1]] != null:
 				return true
