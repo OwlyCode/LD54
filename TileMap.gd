@@ -24,13 +24,15 @@ var matched_in_sequence = false
 
 var defusals = 0
 
-enum { DROPPING, LOCKING, MATCHING, LOST, PAUSED }
+enum { DROPPING, LOCKING, MATCHING, LOST, POST_LOST, PAUSED }
 
 var game_state = DROPPING
 
 var combo_multiplier = 0.0
 
 var combo_timeout = Global.COMBO_TIMEOUT
+
+var lost_timer = 5.0
 
 var MovementFx = preload("res://movement_fx.tscn")
 var ExplosionFx = preload("res://explosion.tscn")
@@ -58,9 +60,16 @@ var match_sequence = 0
 
 @onready var denied_sound = get_node("/root/game/Audio/Denied")
 
+@onready var gameover_sound = get_node("/root/game/Audio/GameOver")
+
 @onready var preview_binds = [
 	get_node("/root/game/PreviewBind1"),
 	get_node("/root/game/PreviewBind2")
+]
+
+@onready var kabooms = [
+	get_node("/root/game/Kaboom"),
+	get_node("/root/game/Kaboom2")
 ]
 
 func _ready():
@@ -458,7 +467,7 @@ func draw(delta):
 
 func _process(delta):
 	draw(delta)
-	display_debug()
+	display_debug(delta)
 
 func rotate_piece():
 	if len(active_cells) < 2:
@@ -504,19 +513,28 @@ func set_game_state(s):
 			lock_cooldown = Global.LOCK_TIME
 		if s == MATCHING:
 			lock_cooldown = Global.COMBO_TIME
-		if s == LOST:
+		if s == POST_LOST:
 			get_node("/root/game/GameOverContainer").visible = true
 			get_node("/root/game/GameOverContainer/Restart").grab_focus()
+		if s == LOST:
+			gameover_sound.play()
+			kabooms[0].emitting = true
+			kabooms[1].emitting = true
 		if s == DROPPING:
 			matched_in_sequence = false
 
 	game_state = s
 
 func _physics_process(delta):
-	if game_state != LOST:
+	if game_state != LOST and game_state != POST_LOST:
 		Global.time += delta
 
 	if game_state == LOST:
+		lost_timer -= delta
+
+		if lost_timer < 0.0:
+			set_game_state(POST_LOST)
+
 		return
 
 	if game_state == LOCKING:
@@ -698,15 +716,43 @@ func is_touching():
 
 	return false
 
-func display_debug():
+var blink_cooldown = 0.5
+
+func display_debug(delta):
 	var debug_ts = get_node("/root/game/Debug")
-	debug_ts.clear()
 
-	# for x in fluid_cells:
-	# 	debug_ts.set_cell(0, Vector2i(x[0], x[1]), 1, Vector2i(3, 3))
+	if game_state == LOST or game_state == POST_LOST:
+		if blink_cooldown < 0.0:
+			blink_cooldown = 0.5
+			for i in range(Global.GRID_SIZE):
+				for j in range(Global.GRID_SIZE):
+					if randf() > 0.8:
+						debug_ts.set_cell(0, Vector2i(i, j), 1, Vector2i(2, 2))
+					else:
+						debug_ts.set_cell(0, Vector2i(i, j), 1, Vector2i(1, 4))
 
-	for x in matching_cells:
-		debug_ts.set_cell(0, Vector2i(x[0], x[1]), 1, Vector2i(2, 3))
+		blink_cooldown -= delta
+
+	else:
+		debug_ts.clear()
+
+		if state[Global.GRID_SIZE/2][Global.GRID_SIZE/2] != null:
+			debug_ts.set_cell(0, Vector2i(Global.GRID_SIZE/2, Global.GRID_SIZE/2), 1, Vector2i(1, 2))
+
+		if state[Global.GRID_SIZE/2+1][Global.GRID_SIZE/2] != null:
+			debug_ts.set_cell(0, Vector2i(Global.GRID_SIZE/2+1, Global.GRID_SIZE/2), 1, Vector2i(1, 2))
+
+		if state[Global.GRID_SIZE/2-1][Global.GRID_SIZE/2] != null:
+			debug_ts.set_cell(0, Vector2i(Global.GRID_SIZE/2-1, Global.GRID_SIZE/2), 1, Vector2i(1, 2))
+
+		if state[Global.GRID_SIZE/2][Global.GRID_SIZE/2-1] != null:
+			debug_ts.set_cell(0, Vector2i(Global.GRID_SIZE/2, Global.GRID_SIZE/2-1), 1, Vector2i(1, 2))
+
+		if state[Global.GRID_SIZE/2][Global.GRID_SIZE/2+1] != null:
+			debug_ts.set_cell(0, Vector2i(Global.GRID_SIZE/2, Global.GRID_SIZE/2+1), 1, Vector2i(1, 2))
+
+		for x in matching_cells:
+			debug_ts.set_cell(0, Vector2i(x[0], x[1]), 1, Vector2i(2, 3))
 
 
 
