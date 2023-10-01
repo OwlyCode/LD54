@@ -20,6 +20,7 @@ var lock_cooldown = Global.LOCK_TIME
 var combo_cooldown = Global.COMBO_TIME
 var fill_cooldown = Global.get_fill_cooldown()
 
+var matched_in_sequence = false
 
 var defusals = 0
 
@@ -233,18 +234,7 @@ func lock():
 
 	var matched = []
 
-	for cell in active_cells:
-		for c in detect_match(cell):
-			matched.append(c)
-
 	active_cells = []
-
-	if len(matched) == 0:
-		combo_multiplier = 0.0
-	else:
-		Global.first_match = true
-		combo_timeout = Global.COMBO_TIMEOUT
-		combo_multiplier += 1.0
 
 	return matched
 
@@ -364,8 +354,13 @@ func pack():
 			matches += detect_match([i, j, with_color])
 
 	if len(matches) > 0:
-		combo_multiplier += 2
+		matched_in_sequence = true
+		combo_multiplier += pow(1 + match_sequence, 2)
+		combo_multiplier = min(100, combo_multiplier)
 		combo_timeout = Global.COMBO_TIMEOUT
+		Global.first_match = true
+	elif not matched_in_sequence:
+		combo_multiplier = 0.0
 
 	return matches
 
@@ -497,6 +492,8 @@ func set_game_state(s):
 		if s == LOST:
 			get_node("/root/game/GameOverContainer").visible = true
 			get_node("/root/game/GameOverContainer/Restart").grab_focus()
+		if s == DROPPING:
+			matched_in_sequence = false
 
 	game_state = s
 
